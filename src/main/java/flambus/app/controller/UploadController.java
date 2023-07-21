@@ -1,5 +1,6 @@
 package flambus.app.controller;
 
+import flambus.app._enum.AttachmentType;
 import flambus.app.dto.ResultDTO;
 import flambus.app.service.upload.UploadService;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,12 @@ public class UploadController {
     @PostMapping(value="/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResultDTO<Map<String,Object>> saveImage(
             @RequestParam(value="image") List<MultipartFile> image,
-            @RequestParam String userId,
-            @RequestParam String uploadType
+            @RequestParam String userId
     ) throws IOException {
         Map<String,Object> sampleArray = new HashMap<>();
-        uploadService.upload(image,userId ,uploadType,2344);
+        System.out.println("AttachmentType.REVIEW : " + AttachmentType.REVIEW);
+
+        uploadService.upload(image,userId ,AttachmentType.REVIEW,2344);
         return ResultDTO.of(200,"success",sampleArray);
     }
 }

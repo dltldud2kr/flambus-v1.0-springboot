@@ -1,6 +1,5 @@
 package flambus.app.dto.upload;
 
-import flambus.app._enum.UploadCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

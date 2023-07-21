@@ -1,5 +1,6 @@
 package flambus.app.model;//package flambus.flambus_v10.model;
 
+import flambus.app._enum.AttachmentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +26,7 @@ public class UploadImage {
     private String uniqueFileName;//적재된 파일명
     private String imageUrl; //파일 이미지 URL
     private long fileSize; //파일 용량
-    private String mappedType;
+    private String attachmentType;
     private long mappedId;//연결된 리뷰,피드 게시글
     private LocalDateTime created;
     private LocalDateTime updated;
