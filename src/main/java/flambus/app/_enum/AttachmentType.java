@@ -23,4 +23,4 @@ public enum AttachmentType {
         }
         throw new IllegalArgumentException("Invalid uploadType: " + text);
     }
-    }
+}

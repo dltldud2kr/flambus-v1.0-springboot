@@ -43,7 +43,7 @@ public class UploadService {
      * @title 파일 업로드
      */
     @Transactional
-    public void upload(List<MultipartFile> multipartFile, String userId, AttachmentType attachmentType, long mappedId) throws IOException {
+    public List<Map<String, Object>> upload(List<MultipartFile> multipartFile, String userId, AttachmentType attachmentType, long mappedId) throws IOException {
 
         List<UploadImage> saveImageDataList = new ArrayList<>();
 
@@ -79,15 +79,16 @@ public class UploadService {
                     .updated(LocalDateTime.now())
                     .build());
         }
-        saveDB(saveImageDataList,attachmentType,mappedId);
+
+        return saveDB(saveImageDataList, attachmentType, mappedId);
     }
 
     /**
      * @title 해당 피드,리뷰와 맵핑된 이미지 정보를 반환합니다.
      */
-    private UploadImage getImage(AttachmentType attachmentType, long mappedId) {
-        Optional<UploadImage> byIdAndMappedType = uploadRepository.findByIdAndAttachmentType(attachmentType.getType(), mappedId);
-        return byIdAndMappedType.get();
+    public List<UploadImage> getImage(AttachmentType attachmentType, long mappedId) {
+        List<UploadImage> byAttachmentTypeAndMappedId = uploadRepository.findByAttachmentTypeAndMappedId(attachmentType.getType(), mappedId);
+        return byAttachmentTypeAndMappedId;
     }
 
     /**

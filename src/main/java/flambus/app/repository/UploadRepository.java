@@ -13,7 +13,6 @@ public interface UploadRepository  extends JpaRepository<UploadImage, String> {
 
     List<UploadImage> findByAttachmentTypeAndMappedId(String attachmentType, long mappedId);
 
-    Optional<UploadImage> findByIdAndAttachmentType(String attachmentType, long id);
 
 
 }
