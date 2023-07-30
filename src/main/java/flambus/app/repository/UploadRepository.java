@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UploadRepository  extends JpaRepository<UploadImage, String> {
+public interface UploadRepository  extends JpaRepository<UploadImage, Long> {
 
     List<UploadImage> findByAttachmentTypeAndMappedId(String attachmentType, long mappedId);
 

@@ -1,4 +1,4 @@
-package flambus.app.service.upload;
+package flambus.app.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -10,6 +10,7 @@ import flambus.app.repository.UploadRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.support.NullValue;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +36,8 @@ public class UploadService {
     private String bucket;
 
     /**
-     * @param multipartFile 업로드된 파일 multipartFile 객체
-     * @param userId        사용자 userId
+     * @param multipartFile     업로드된 파일 multipartFile 객체
+     * @param userId            사용자 userId
      * @param attachmentType    업로드 타입("REVIEW,FEED")
      * @return
      * @throws IOException
@@ -84,12 +85,25 @@ public class UploadService {
     }
 
     /**
-     * @title 해당 피드,리뷰와 맵핑된 이미지 정보를 반환합니다.
+     * @title AttachmentType에 맞는 이미지 데이터를 반환합니다.
+     * @param attachmentType {"reivew","feed"}
+     * @param mappedId {"reviewId","feedId"}
+     * @return [data]
      */
-    public List<UploadImage> getImage(AttachmentType attachmentType, long mappedId) {
+    public List<UploadImage> getImageByAttachmentType(AttachmentType attachmentType, long mappedId) {
         List<UploadImage> byAttachmentTypeAndMappedId = uploadRepository.findByAttachmentTypeAndMappedId(attachmentType.getType(), mappedId);
         return byAttachmentTypeAndMappedId;
     }
+
+    /**
+     * @title Image pk를 통한 이미지 데이터 반환
+     * @param id : db pk
+     * @return
+     */
+    public Optional<UploadImage> getImageById(Long id) {
+        return uploadRepository.findById(id);
+    }
+
 
     /**
      * @title S3에 적재된 파일과 맵핑 정보를 데이터베이스에 저장합니다.
