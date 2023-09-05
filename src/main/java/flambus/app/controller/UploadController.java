@@ -30,6 +30,7 @@ public class UploadController {
     public ResultDTO<Map<String,Object>> saveImage(
             @RequestParam(value="image") List<MultipartFile> image,
             @RequestParam String userId) throws IOException {
+
         Map<String,Object> sampleArray = new HashMap<>();
         uploadService.upload(image,userId ,AttachmentType.REVIEW,2344);
         return ResultDTO.of(ApiResponseCode.CREATED.getCode(),ApiResponseCode.CREATED.getMessage(), sampleArray);
