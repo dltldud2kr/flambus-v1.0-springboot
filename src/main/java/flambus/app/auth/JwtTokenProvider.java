@@ -1,10 +1,14 @@
 package flambus.app.auth;
 
 
-import flambus.app.dto.user.TokenDto;
+import flambus.app._enum.CustomExceptionCode;
+import flambus.app.dto.member.TokenDto;
+import flambus.app.entity.Member;
+import flambus.app.exception.CustomException;
+import flambus.app.repository.MemberRepository;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +18,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import java.security.Key;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
+
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -32,14 +34,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
     @Value("${spring.jwt.secret}")
     private String secretKey;
 
-//    public JwtTokenProvider(@Value("11") String secretKey) {
-//        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-//        this.key = Keys.hmacShaKeyFor(keyBytes);
-//    }
+    private final MemberRepository memberRepository;
+
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
     public TokenDto generateToken(Authentication authentication) {
@@ -50,9 +51,9 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
         // Access Token 생성
-        // 숫자 86400000은 토큰의 유효기간으로 1일을 나타냅니다. 보통 토큰은 30분 정도로 생성하는데 테스트를 위해 1일로 설정했습니다.
-        // 1일: 24*60*60*1000 = 86400000
-        Date accessTokenExpiresIn = new Date(now + 86400000);
+        // 2시간만 유지합니다.
+        Date accessTokenExpiresIn = new Date(now + (5 * 60 * 1000)); //5분
+//        Date accessTokenExpiresIn = new Date(now + (2 * 60 * 60 * 1000));
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -60,16 +61,20 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encodeToString(secretKey.getBytes())) // 알고리즘, 시크릿 키
                 .compact();
 
-        // Refresh Token 생성
+        // Refresh Token 생성 후 해당 사용자의 DB에 저장한다.
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 86400000))
+                //86400000 1일
+                .setExpiration(new Date(now + (86400000 * 3))) // 3일간만 유지합니다.
                 .signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encodeToString(secretKey.getBytes())) // 알고리즘, 시크릿 키
                 .compact();
 
+
+        //해당 사용자 정보의 리플래쉬 토큰을 업데이트 해줌.
+        Optional<Member> byMember = memberRepository.findByEmail(authentication.getName());
+        memberRepository.updateRefreshToken(byMember.get().getEmail(),refreshToken);
+
         return TokenDto.builder()
-                .grantType("Bearer")
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -78,15 +83,13 @@ public class JwtTokenProvider {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
+
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
-        // 클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+        //플램버스는 무조건 유저 디비에서 따로 권한을 관리합니다.
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
         // UserDetails 객체를 만들어서 Authentication 리턴
         UserDetails principal = new User(claims.getSubject(), "", authorities);
@@ -96,14 +99,14 @@ public class JwtTokenProvider {
     // 토큰 정보를 검증하는 메서드
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-
-//            Jwts.parserBuilder().setSigningKey(key).build().parse(token);
+            Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
+            log.info("올바른 형식의 토큰이 아님.", e);
+//            throw new CustomException(CustomExceptionCode.INVALID_JWT);
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
+            log.info("토큰 만료됨.", e);
+//            throw new CustomException(CustomExceptionCode.EXPIRED_JWT);
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {
@@ -115,7 +118,7 @@ public class JwtTokenProvider {
     private Claims parseClaims(String accessToken) {
         try {
 //            return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken).getBody();
-            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(accessToken).getBody();
+            return Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }

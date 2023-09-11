@@ -1,4 +1,4 @@
-package flambus.app.model;//package flambus.flambus_v10.model;
+package flambus.app.entity;//package flambus.flambus_v10.model;
 
 import flambus.app._enum.AttachmentType;
 import lombok.AllArgsConstructor;

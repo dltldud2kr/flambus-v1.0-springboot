@@ -1,26 +1,18 @@
 package flambus.app.entity;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -28,14 +20,45 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name= "member")
+@Data
 public class Member implements UserDetails {
 
     @Id
-    @Column(name = "member_id", updatable = false, unique = true, nullable = false)
-    private String memberId;
+    @Column(name = "idx")
+    @GeneratedValue
+    private Long idx;
+
+    @Column(unique = true, nullable = false)
+    private String email;
 
     @Column(nullable = false)
     private String password;
+
+
+    @Column(nullable = false)
+    private int isAdmin; //0:사용자 1:관리자
+
+    @Column(nullable = false)
+    private int platform; //연동 플랫폼 네이버,카카오...등등,flambus
+    private String introduce; //소개
+    @Column
+    private String refreshToken; //리프레쉬 토큰
+    @Column(nullable = false)
+    private int termsAgree; //개인 약관 동의 여부 0:no 1:ye
+    @Column(nullable = false)
+    private LocalDateTime termsAgreeDate; //약관 동의날짜
+    @Column(nullable = false)
+    private int serviceAgree; //서비스 이용 약관 동의 여부 0:no 1:yes
+    @Column(nullable = false)
+    private LocalDateTime serviceAgreeDate; //약관 동의날짜
+    @Column(nullable = false)
+    private int useGpsAgree; //GPS 이용 약관
+    @Column(nullable = false)
+    private LocalDateTime useGpsAgreeDate; //약관 동의날짜
+    @Column(nullable = false)
+    private long follower; //팔로워
+    @Column(nullable = false)
+    private long following; //팔로잉
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
@@ -50,7 +73,14 @@ public class Member implements UserDetails {
 
     @Override
     public String getUsername() {
-        return memberId;
+        return email;
+    }
+
+    public String getEmail() {return email;}
+
+
+    public long getMemberIdx() {
+        return idx;
     }
 
     @Override

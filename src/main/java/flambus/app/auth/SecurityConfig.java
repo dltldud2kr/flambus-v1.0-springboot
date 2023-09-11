@@ -1,6 +1,7 @@
 package flambus.app.auth;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +28,26 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+
+    private static final String[] PERMIT_URL_ARRAY = {
+            /* swagger v2 */
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            /* swagger v3 */
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
+
+
+
     /**
      * httpBasic().disable().csrf().disable(): rest api이므로 basic auth 및 csrf 보안을 사용하지 않는다는 설정
      *  sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS): JWT를 사용하기 때문에 세션을 사용하지 않는다는 설정
@@ -39,13 +60,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .and()
+                //토큰 관련된 장보를 클ㄹ\
                 .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/members/login").permitAll()
-                .antMatchers("/members/test").hasRole("USER")
+                .antMatchers("/api/v1/auth/login").permitAll()
+                .antMatchers("/api/v1/auth/token").permitAll()
+                .antMatchers("/api/v1/auth/join").permitAll()
+                .antMatchers("/api/v1/auth/**").permitAll()
+                .antMatchers(PERMIT_URL_ARRAY).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);

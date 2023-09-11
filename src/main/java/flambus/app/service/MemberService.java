@@ -1,35 +1,27 @@
 package flambus.app.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import flambus.app._enum.AttachmentType;
-import flambus.app._enum.FileType;
+import flambus.app._enum.ApiResponseCode;
+import flambus.app._enum.CustomExceptionCode;
 import flambus.app.auth.JwtTokenProvider;
-import flambus.app.dto.user.TokenDto;
-import flambus.app.model.UploadImage;
+import flambus.app.dto.ResultDTO;
+import flambus.app.dto.member.JoinRequestDto;
+import flambus.app.dto.member.TokenDto;
+import flambus.app.entity.Member;
+import flambus.app.exception.CustomException;
 import flambus.app.repository.MemberRepository;
-import flambus.app.repository.UploadRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,18 +37,74 @@ public class MemberService {
      * 3. 검증이 정상적으로 통과되었다면 인증된 Authentication객체를 기반으로 JWT 토큰을 생성
      */
     @Transactional
-    public TokenDto login(String memberId, String password) {
-        // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
-        // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberId, password);
-
-        // 2. 실제 검증 (사용자 비밀번호 체크)이 이루어지는 부분
-        // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
+    public TokenDto login(String email, String password) {
+        memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_EMAIL));
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
-
         return tokenDto;
     }
+
+    public TokenDto createToken(Long memberIdx) {
+        Member member = memberRepository.findById(memberIdx)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+
+        if (jwtTokenProvider.validateToken(member.getRefreshToken())) {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(member.getEmail(), member.getPassword());
+            System.out.println("authenticationToken : "+authenticationToken);
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
+            return tokenDto;
+        } else {
+            //만료된 리프레쉬 토큰.
+            throw new CustomException(CustomExceptionCode.EXPIRED_JWT);
+        }
+    }
+
+    //회원가입 로직
+    @Transactional
+    public boolean join(JoinRequestDto request) {
+        try {
+            //해당 이메일이 존재하는지 확인.
+            if(getMember(request.getEmail()) != null) {
+                throw new CustomException(CustomExceptionCode.DUPLICATED);
+            }
+            //해당 이메일이 디비에 존재하는지 확인.
+            Member member = Member.builder()
+                    .email(request.getEmail())
+                    .password(request.getPassword())
+                    .isAdmin(0)
+                    .platform(0)
+                    .introduce(null)
+                    .refreshToken(null)
+                    .serviceAgree(0)
+                    .serviceAgreeDate(LocalDateTime.now())
+                    .termsAgree(0)
+                    .termsAgreeDate(LocalDateTime.now())
+                    .useGpsAgree(0)
+                    .useGpsAgreeDate(LocalDateTime.now())
+                    .follower(0)
+                    .following(0)
+                    .build();
+            memberRepository.save(member);
+            return true;
+        } catch (DataAccessException e) {
+            System.err.println("DataAccessException : " + e);
+            return false;
+        }
+    }
+
+    public Member getMember(String email) {
+        Optional<Member> byEmail = memberRepository.findByEmail(email);
+        // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
+        return byEmail.orElse(null);
+    }
+
+    public Member getMember(long memberIdx) {
+        Optional<Member> byEmail = memberRepository.findById(memberIdx);
+        // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
+        return byEmail.orElse(null);
+    }
+
 }
