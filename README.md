@@ -1,5 +1,9 @@
 # flambus-v1.0-springboot
-flambus app backend
+
+## 환경세팅
+ - spring boot 2.7.8
+ - mariadb 2.4.1
+ - sourceCompatibility 1.8
 
 
  📒 API DOCUMENT 
