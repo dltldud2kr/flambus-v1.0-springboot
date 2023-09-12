@@ -36,7 +36,7 @@ public class MemberController {
             "\n- 500: 서버에서 요청 처리중 문제가 발생했습니다." +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- SUCCESS: 로그인 성공 및 정상 토큰 발급" +
-            "\n- NOT_FOUND_EMAIL: 요청 이메일이 존재하지 않음.")
+            "\n- NOT_FOUND_EMAIL: 요청한 이메일 가입자가 존재하지 않음")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
     })
@@ -99,5 +99,53 @@ public class MemberController {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
+
+    @Operation(summary = "사용자 정보 조회", description = "" +
+            "사용자 정보를 요청합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+    @GetMapping("/member")
+    public ResultDTO member() {
+        return null;
+    }
+
+    @Operation(summary = "사용자 정보 수정", description = "" +
+            "사용자 정보를 수정합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+    @PostMapping("/member")
+    public ResultDTO modify() {
+        return null;
+    }
+
+
+    @Operation(summary = "사용자 정보 삭제", description = "" +
+            "사용자 정보를 삭제합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+    @DeleteMapping("/member")
+    public ResultDTO delete() {
+        return null;
+    }
+
+
 
 }
