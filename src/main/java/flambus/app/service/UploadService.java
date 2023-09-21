@@ -91,6 +91,7 @@ public class UploadService {
      */
     public List<UploadImage> getImageByAttachmentType(AttachmentType attachmentType, long mappedId) {
         List<UploadImage> byAttachmentTypeAndMappedId = uploadRepository.findByAttachmentTypeAndMappedId(attachmentType.getType(), mappedId);
+
         return byAttachmentTypeAndMappedId;
     }
 

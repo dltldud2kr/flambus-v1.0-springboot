@@ -21,13 +21,13 @@ import java.time.LocalDateTime;
 @Table(name = "uploadImage")
 public class UploadImage {
     @Id  @GeneratedValue
-    private Long id;
+    private Long idx;
     private String uploaderIdx;//파일 이름
     private String fileName;//파일 이름
     private String uniqueFileName;//적재된 파일명
     private String imageUrl; //파일 이미지 URL
     private long fileSize; //파일 용량
-    private String attachmentType;
+    private String attachmentType; //리뷰,피드
     private long mappedId;//연결된 리뷰,피드 게시글
     private LocalDateTime created;
     private LocalDateTime updated;

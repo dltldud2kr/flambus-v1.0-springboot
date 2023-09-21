@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,6 +43,7 @@ public class JwtTokenProvider {
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
     public TokenDto generateToken(Authentication authentication) {
+//        System.out.println("principal dfdfd"+ principal.getName());
         // 권한 가져오기
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -73,6 +73,7 @@ public class JwtTokenProvider {
         Optional<Member> byMember = memberRepository.findByEmail(authentication.getName());
         memberRepository.updateRefreshToken(byMember.get().getEmail(),refreshToken);
 
+        //accesstoken 받았어, -> 이동
         return TokenDto.builder()
                 .accessToken(accessToken)
                 .build();

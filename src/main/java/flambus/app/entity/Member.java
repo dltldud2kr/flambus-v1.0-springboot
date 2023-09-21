@@ -27,17 +27,12 @@ public class Member implements UserDetails {
     @Column(name = "idx")
     @GeneratedValue
     private Long idx;
-
     @Column(unique = true, nullable = false)
     private String email;
-
     @Column(nullable = false)
     private String password;
-
-
     @Column(nullable = false)
     private int isAdmin; //0:사용자 1:관리자
-
     @Column(nullable = false)
     private int platform; //연동 플랫폼 네이버,카카오...등등,flambus
     private String introduce; //소개
@@ -59,18 +54,15 @@ public class Member implements UserDetails {
     private long follower; //팔로워
     @Column(nullable = false)
     private long following; //팔로잉
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
-
     @Override
     public String getUsername() {
         return email;
@@ -78,10 +70,6 @@ public class Member implements UserDetails {
 
     public String getEmail() {return email;}
 
-
-    public long getMemberIdx() {
-        return idx;
-    }
 
     @Override
     public String getPassword() {

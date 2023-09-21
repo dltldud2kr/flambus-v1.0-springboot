@@ -41,6 +41,7 @@ public class MemberService {
         memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_EMAIL));
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
         return tokenDto;
@@ -61,6 +62,7 @@ public class MemberService {
             throw new CustomException(CustomExceptionCode.EXPIRED_JWT);
         }
     }
+
 
     //회원가입 로직
     @Transactional
@@ -95,6 +97,7 @@ public class MemberService {
         }
     }
 
+    //이메일 -> 사용자 정보를 찾아고  pk
     public Member getMember(String email) {
         Optional<Member> byEmail = memberRepository.findByEmail(email);
         // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
@@ -106,5 +109,7 @@ public class MemberService {
         // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
         return byEmail.orElse(null);
     }
+
+
 
 }
