@@ -54,6 +54,21 @@ public class Member implements UserDetails {
     private long follower; //팔로워
     @Column(nullable = false)
     private long following; //팔로잉
+
+    @Column(nullable = false)
+    private long acornsCount; //도토리 개수
+    @Column(nullable = false)
+    private long canLimitCount; //리뷰 작성 가능 수(탐험일지 작성수) 자정마다 2로
+    @Column(nullable = false)
+    private String profileImageUrl; ///프로필 링크
+    @Column(nullable = false)
+    private LocalDateTime subscriptionDate; //가입일
+    @Column(nullable = false)
+    private byte withdrawal; //탈퇴여부 0 , 1
+    @Column(nullable = false)
+    private LocalDateTime withdrawalDate; //탈퇴여부
+
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();

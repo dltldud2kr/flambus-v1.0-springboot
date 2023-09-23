@@ -69,7 +69,7 @@ public class MemberService {
     public boolean join(JoinRequestDto request) {
         try {
             //해당 이메일이 존재하는지 확인.
-            if(getMember(request.getEmail()) != null) {
+            if(this.getMember(request.getEmail()) != null) {
                 throw new CustomException(CustomExceptionCode.DUPLICATED);
             }
             //해당 이메일이 디비에 존재하는지 확인.
@@ -101,13 +101,14 @@ public class MemberService {
     public Member getMember(String email) {
         Optional<Member> byEmail = memberRepository.findByEmail(email);
         // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
+
         return byEmail.orElse(null);
     }
 
     public Member getMember(long memberIdx) {
-        Optional<Member> byEmail = memberRepository.findById(memberIdx);
+        Optional<Member> member = memberRepository.findById(memberIdx);
         // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
-        return byEmail.orElse(null);
+        return member.orElse(null);
     }
 
 

@@ -7,6 +7,7 @@ import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.LoginRequestDto;
 import flambus.app.dto.member.MemberIdx;
 import flambus.app.dto.member.TokenDto;
+import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -110,9 +111,11 @@ public class MemberController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
     })
+
     @GetMapping("/member")
-    public ResultDTO member() {
-        return null;
+    public ResultDTO member(@RequestParam("idx") long memberIdx) {
+        Member member = memberService.getMember(memberIdx);
+        return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.", member);
     }
 
     @Operation(summary = "사용자 정보 수정", description = "" +
