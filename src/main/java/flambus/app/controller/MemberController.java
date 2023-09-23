@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -118,6 +119,13 @@ public class MemberController {
         return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.", member);
     }
 
+    @GetMapping("/member")
+    public ResultDTO allMember() {
+        List<Member> allMembers = memberService.getAllMembers();
+        return ResultDTO.of(allMembers.isEmpty(), ApiResponseCode.SUCCESS.getCode(), allMembers.isEmpty() ? "성공" : "가입된 사용자가 존재하지 않습니다", allMembers);
+    }
+
+
     @Operation(summary = "사용자 정보 수정", description = "" +
             "사용자 정보를 수정합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
@@ -128,7 +136,7 @@ public class MemberController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
     })
-    @PostMapping("/member")
+    @PatchMapping("/member")
     public ResultDTO modify() {
         return null;
     }

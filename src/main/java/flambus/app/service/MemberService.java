@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -110,6 +111,15 @@ public class MemberService {
         // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
         return member.orElse(null);
     }
+
+    //가입된 사용자 정보를 조회
+    //탈퇴된 사용자는 제외하고 조회합니다.
+    public List<Member> getAllMembers() {
+        //Optional<Member> member = memberRepository.findAll(memberIdx);
+        //return member.orElse(null);
+        return null;
+    }
+
 
 
 
