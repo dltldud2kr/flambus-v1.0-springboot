@@ -54,7 +54,6 @@ public class Member implements UserDetails {
     private long follower; //팔로워
     @Column(nullable = false)
     private long following; //팔로잉
-
     @Column(nullable = false)
     private long acornsCount; //도토리 개수
     @Column(nullable = false)

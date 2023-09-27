@@ -5,7 +5,7 @@ import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.LoginRequestDto;
-import flambus.app.dto.member.MemberIdx;
+import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.member.TokenDto;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -70,11 +67,11 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "토큰 발급 성공"),
     })
     @PostMapping("/auth/token")
-    public ResultDTO<TokenDto> getAccessToken(@RequestBody MemberIdx memberIdx) {
+    public ResultDTO<TokenDto> getAccessToken(@RequestBody long memberIdx) {
         try {
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "토큰이 갱신 되었습니다.", memberService.createToken(memberIdx.getMemberIdx()));
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "토큰이 갱신 되었습니다.", memberService.createToken(memberIdx));
         } catch (CustomException e) {
-            memberService.createToken(memberIdx.getMemberIdx());
+            memberService.createToken(memberIdx);
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
@@ -116,14 +113,34 @@ public class MemberController {
     @GetMapping("/member")
     public ResultDTO member(@RequestParam("idx") long memberIdx) {
         Member member = memberService.getMember(memberIdx);
-        return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.", member);
+
+        MemberDto memberDto =  MemberDto.builder()
+                .idx(member.getIdx())
+                .acornsCount(member.getAcornsCount())
+                .canLimitCount(member.getCanLimitCount())
+                .email(member.getEmail())
+                .isAdmin(member.getIsAdmin())
+                .follower(member.getFollower())
+                .following(member.getFollowing())
+                .introduce(member.getIntroduce())
+                .platform(member.getPlatform())
+                .subscriptionDate(member.getSubscriptionDate())
+                .profileImageUrl(member.getProfileImageUrl())
+                .serviceAgree(member.getServiceAgree())
+                .serviceAgreeDate(member.getServiceAgreeDate())
+                .termsAgree(member.getTermsAgree())
+                .termsAgreeDate(member.getTermsAgreeDate())
+                .useGpsAgree(member.getUseGpsAgree())
+                .useGpsAgreeDate(member.getUseGpsAgreeDate())
+                .build();
+        return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.",memberDto);
     }
 
-    @GetMapping("/member")
-    public ResultDTO allMember() {
-        List<Member> allMembers = memberService.getAllMembers();
-        return ResultDTO.of(allMembers.isEmpty(), ApiResponseCode.SUCCESS.getCode(), allMembers.isEmpty() ? "성공" : "가입된 사용자가 존재하지 않습니다", allMembers);
-    }
+//    @GetMapping("/member/")
+//    public ResultDTO allMember() {
+//        List<Member> allMembers = memberService.getAllMembers();
+//        return ResultDTO.of(allMembers.isEmpty(), ApiResponseCode.SUCCESS.getCode(), allMembers.isEmpty() ? "성공" : "가입된 사용자가 존재하지 않습니다", allMembers);
+//    }
 
 
     @Operation(summary = "사용자 정보 수정", description = "" +
@@ -152,6 +169,7 @@ public class MemberController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
     })
+
     @DeleteMapping("/member")
     public ResultDTO delete() {
         return null;
