@@ -2,15 +2,13 @@ package flambus.app.exception;
 
 
 import flambus.app._enum.CustomExceptionCode;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper = false)
 public class CustomException extends RuntimeException {
     private CustomExceptionCode customErrorCode;
     private String detailMessage;

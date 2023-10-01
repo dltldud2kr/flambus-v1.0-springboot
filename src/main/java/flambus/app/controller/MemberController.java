@@ -133,6 +133,7 @@ public class MemberController {
                 .useGpsAgree(member.getUseGpsAgree())
                 .useGpsAgreeDate(member.getUseGpsAgreeDate())
                 .build();
+
         return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.",memberDto);
     }
 
@@ -159,8 +160,8 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "사용자 정보 삭제", description = "" +
-            "사용자 정보를 삭제합니다." +
+    @Operation(summary = "회원 탈퇴 요청", description = "" +
+            "사용자 회원 탈퇴 요청." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
