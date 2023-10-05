@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "storeJjim")
+@Table(name = "store_jjim")
 public class StoreJjim {
     @Id
     @GeneratedValue

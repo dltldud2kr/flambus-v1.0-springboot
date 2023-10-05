@@ -14,10 +14,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.*;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -119,18 +121,18 @@ public class MemberController {
                 .acornsCount(member.getAcornsCount())
                 .canLimitCount(member.getCanLimitCount())
                 .email(member.getEmail())
-                .isAdmin(member.getIsAdmin())
+                .isAdmin(member.isAdmin())
                 .follower(member.getFollower())
                 .following(member.getFollowing())
                 .introduce(member.getIntroduce())
                 .platform(member.getPlatform())
                 .subscriptionDate(member.getSubscriptionDate())
                 .profileImageUrl(member.getProfileImageUrl())
-                .serviceAgree(member.getServiceAgree())
+                .serviceAgree(member.isServiceAgree())
                 .serviceAgreeDate(member.getServiceAgreeDate())
-                .termsAgree(member.getTermsAgree())
+                .termsAgree(member.isTermsAgree())
                 .termsAgreeDate(member.getTermsAgreeDate())
-                .useGpsAgree(member.getUseGpsAgree())
+                .useGpsAgree(member.isUseGpsAgree())
                 .useGpsAgreeDate(member.getUseGpsAgreeDate())
                 .build();
 
@@ -142,6 +144,13 @@ public class MemberController {
 //        List<Member> allMembers = memberService.getAllMembers();
 //        return ResultDTO.of(allMembers.isEmpty(), ApiResponseCode.SUCCESS.getCode(), allMembers.isEmpty() ? "성공" : "가입된 사용자가 존재하지 않습니다", allMembers);
 //    }
+    @GetMapping("/member/all")
+    public List<MemberDto> allMember() {
+
+        List<MemberDto> members = memberService.getAllMembers();
+        System.out.println(members);
+        return members;
+    }
 
 
     @Operation(summary = "사용자 정보 수정", description = "" +

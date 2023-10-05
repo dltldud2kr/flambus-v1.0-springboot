@@ -1,10 +1,7 @@
 package flambus.app.dto.member;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
@@ -17,17 +14,18 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class MemberDto {
     private Long idx;
     private String email;
-    private int isAdmin;
+    private boolean isAdmin;
     private int platform;
     private String introduce;
-    private int termsAgree;
+    private boolean termsAgree;
     private LocalDateTime termsAgreeDate; //약관 동의날짜
-    private int serviceAgree; //서비스 이용 약관 동의 여부 0:no 1:yes
+    private boolean serviceAgree; //서비스 이용 약관 동의 여부 0:no 1:yes
     private LocalDateTime serviceAgreeDate; //약관 동의날짜
-    private int useGpsAgree; //GPS 이용 약관
+    private boolean useGpsAgree; //GPS 이용 약관
     private LocalDateTime useGpsAgreeDate; //약관 동의날짜
     private long follower; //팔로워
     private long following; //팔로잉

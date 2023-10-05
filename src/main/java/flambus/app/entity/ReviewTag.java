@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "reviewTag")
+@Table(name = "review_tag")
 public class ReviewTag {
     @Id  @GeneratedValue
     private Long idx;//pk

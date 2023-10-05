@@ -5,9 +5,11 @@ import flambus.app._enum.CustomExceptionCode;
 import flambus.app.auth.JwtTokenProvider;
 import flambus.app.dto.ResultDTO;
 import flambus.app.dto.member.JoinRequestDto;
+import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.member.TokenDto;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
+import flambus.app.mapper.MemberMapper;
 import flambus.app.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -31,6 +33,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final MemberMapper memberMapper;
 
     /**
      * 1. 로그인 요청으로 들어온 ID, PWD 기반으로 Authentication 객체 생성
@@ -77,15 +81,15 @@ public class MemberService {
             Member member = Member.builder()
                     .email(request.getEmail())
                     .password(request.getPassword())
-                    .isAdmin(0)
+                    .isAdmin(false)
                     .platform(0)
                     .introduce(null)
                     .refreshToken(null)
-                    .serviceAgree(0)
+                    .serviceAgree(false)
                     .serviceAgreeDate(LocalDateTime.now())
-                    .termsAgree(0)
+                    .termsAgree(false)
                     .termsAgreeDate(LocalDateTime.now())
-                    .useGpsAgree(0)
+                    .useGpsAgree(false)
                     .useGpsAgreeDate(LocalDateTime.now())
                     .follower(0)
                     .following(0)
@@ -114,10 +118,12 @@ public class MemberService {
 
     //가입된 사용자 정보를 조회
     //탈퇴된 사용자는 제외하고 조회합니다.
-    public List<Member> getAllMembers() {
+    public List<MemberDto> getAllMembers() {
         //Optional<Member> member = memberRepository.findAll(memberIdx);
         //return member.orElse(null);
-        return null;
+        MemberDto parameter = new MemberDto();
+        List<MemberDto> list = memberMapper.selectList(parameter);
+        return list;
     }
 
 

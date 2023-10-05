@@ -32,22 +32,22 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private int isAdmin; //0:사용자 1:관리자
+    private boolean isAdmin; //0:사용자 1:관리자
     @Column(nullable = false)
     private int platform; //연동 플랫폼 네이버,카카오...등등,flambus
     private String introduce; //소개
     @Column
     private String refreshToken; //리프레쉬 토큰
     @Column(nullable = false)
-    private int termsAgree; //개인 약관 동의 여부 0:no 1:ye
+    private boolean termsAgree; //개인 약관 동의 여부 0:no 1:ye
     @Column(nullable = false)
     private LocalDateTime termsAgreeDate; //약관 동의날짜
     @Column(nullable = false)
-    private int serviceAgree; //서비스 이용 약관 동의 여부 0:no 1:yes
+    private boolean serviceAgree; //서비스 이용 약관 동의 여부 0:no 1:yes
     @Column(nullable = false)
     private LocalDateTime serviceAgreeDate; //약관 동의날짜
     @Column(nullable = false)
-    private int useGpsAgree; //GPS 이용 약관
+    private boolean useGpsAgree; //GPS 이용 약관
     @Column(nullable = false)
     private LocalDateTime useGpsAgreeDate; //약관 동의날짜
     @Column(nullable = false)
@@ -63,9 +63,9 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime subscriptionDate; //가입일
     @Column(nullable = false)
-    private byte withdrawal; //탈퇴여부 0 , 1
-    @Column(nullable = false)
-    private LocalDateTime withdrawalDate; //탈퇴여부
+    private boolean withdrawal; //탈퇴여부 0 , 1
+
+    private LocalDateTime withdrawalDate; //탈퇴일자
 
 
     @ElementCollection(fetch = FetchType.EAGER)
