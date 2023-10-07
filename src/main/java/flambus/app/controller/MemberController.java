@@ -139,14 +139,20 @@ public class MemberController {
         return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.",memberDto);
     }
 
-//    @GetMapping("/member/")
-//    public ResultDTO allMember() {
-//        List<Member> allMembers = memberService.getAllMembers();
-//        return ResultDTO.of(allMembers.isEmpty(), ApiResponseCode.SUCCESS.getCode(), allMembers.isEmpty() ? "성공" : "가입된 사용자가 존재하지 않습니다", allMembers);
-//    }
+
+    @Operation(summary = "가입된 모든 사용자 정보 조회", description = "" +
+            "사용자 정보를 요청합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+
     @GetMapping("/member/all")
     public List<MemberDto> allMember() {
-
         List<MemberDto> members = memberService.getAllMembers();
         System.out.println(members);
         return members;
@@ -184,6 +190,8 @@ public class MemberController {
     public ResultDTO delete() {
         return null;
     }
+
+
 
 
 

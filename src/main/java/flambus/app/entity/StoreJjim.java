@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * store 찜하기.
+ * store 찜하기.(나만의 탐험지로 지정)
  */
 @Entity
 @Data
