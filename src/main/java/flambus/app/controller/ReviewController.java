@@ -27,7 +27,7 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @Operation(summary = "가게의 탐험일지 요청", description = "현재 가게의 등록된 탐험일지 다건 리스트를 페이징으로 처리" +
+    @Operation(summary = "가게의 탐험일지 리스트 요청", description = "현재 가게의 등록된 탐험일지 다건 리스트를 페이징으로 처리" +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
@@ -36,6 +36,7 @@ public class ReviewController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
     })
+
     @GetMapping
     public ResultDTO getStoreExpJournal() {
         return null;
