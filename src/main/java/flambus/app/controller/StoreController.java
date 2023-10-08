@@ -1,6 +1,10 @@
 package flambus.app.controller;
 
+import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
+import flambus.app.dto.store.StoreDto;
+import flambus.app.exception.CustomException;
+import flambus.app.service.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "스토어,가게 정보 관련 API", description = "")
 public class StoreController {
 
+    private final StoreService storeService;
+
     @Operation(summary = "가게 정보 요청", description = "해당 가게 정보를 단건으로 요청" +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 "+
@@ -26,11 +32,15 @@ public class StoreController {
             @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
     })
     @GetMapping
-    public ResultDTO getStore() {
-        return null;
-    }
+    public ResultDTO<StoreDto> getStore(@RequestParam("storeIdx") long storeIdx) {
+        try {
+            StoreDto storeInfo = storeService.getStoreInfo(storeIdx);
+            return ResultDTO.of(storeInfo != null, ApiResponseCode.SUCCESS.getCode(), storeInfo != null ? "성공" : "해당 StoreIdx 정보를 찾을 수 없습니다.",storeInfo);
 
-
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+  }
 
 
     @Operation(summary = "나만의 가게로 지정(찜)", description = "나만의 가게 해제를 원할 경우 한번더 요청하면됨." +
