@@ -50,10 +50,10 @@ public class UploadController {
     @PutMapping(value="/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResultDTO<Map<String,Object>> saveImage(
             @RequestParam(value="image") List<MultipartFile> image,
-            @RequestParam String userId) throws IOException {
+            @RequestParam long memberIdx) throws IOException {
 
         Map<String,Object> sampleArray = new HashMap<>();
-        uploadService.upload(image,userId ,AttachmentType.REVIEW,2344);
+        uploadService.upload(image,memberIdx ,AttachmentType.REVIEW,2344);
         return ResultDTO.of(true, ApiResponseCode.CREATED.getCode(),ApiResponseCode.CREATED.getMessage(), sampleArray);
     }
 

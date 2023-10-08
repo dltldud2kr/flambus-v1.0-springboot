@@ -3,9 +3,11 @@ package flambus.app.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import flambus.app._enum.CustomExceptionCode;
 import flambus.app._enum.FileType;
 import flambus.app._enum.AttachmentType;
 import flambus.app.entity.UploadImage;
+import flambus.app.exception.CustomException;
 import flambus.app.repository.UploadRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,51 +38,57 @@ public class UploadService {
 
     /**
      * @param multipartFile     업로드된 파일 multipartFile 객체
-     * @param userId            사용자 userId
+     * @param memberIdx            사용자 m
      * @param attachmentType    업로드 타입("REVIEW,FEED")
      * @return
      * @throws IOException
      * @title 파일 업로드
      */
     @Transactional
-    public List<Map<String, Object>> upload(List<MultipartFile> multipartFile, String userId, AttachmentType attachmentType, long mappedId) throws IOException {
+    public List<Map<String, Object>> upload(List<MultipartFile> multipartFile, long memberIdx, AttachmentType attachmentType, long mappedId) throws IOException {
 
-        List<UploadImage> saveImageDataList = new ArrayList<>();
+        try {
+            List<UploadImage> saveImageDataList = new ArrayList<>();
 
-        if(multipartFile.size() <= 0) {
-            new IllegalArgumentException("업로드될 파일이 없습니다.");
+            if (multipartFile.size() <= 0) {
+                new IllegalArgumentException("업로드될 파일이 없습니다.");
+            }
+
+            //MultipartFile로 받은 객체를 File 객체로 변환
+            for (MultipartFile file : multipartFile) {
+                //업로드 시도한 파일 제한 용량 검증
+                validateFileSize(file);
+                //MultipartFile -> File 객체로 convert
+                File convertFile = convert(file).orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+                //s3에 적재될 유니크한 파일 이름
+                String saveFileName = generateUniqueFileName(file.getName());
+                //실제 파일 이름.
+                String orginFileName = file.getOriginalFilename();
+                //업로드될 버킷 PATH
+                String bucketPath = attachmentType.getType() + "/" + memberIdx + "/" + mappedId + "/" + saveFileName;//적재할 경로 세팅
+                //업로드 된 이미지 URL
+                String url = putS3(convertFile, bucketPath); //s3에 적재
+                // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
+                removeNewFile(convertFile);
+                //S3 버킷에 적재된 이미지 파일 정보를 게시글정보와 함께 맵핑해서 디비에 저장함.
+                saveImageDataList.add(UploadImage.builder()
+                        .fileName(orginFileName)
+                        .uniqueFileName(saveFileName)
+                        .imageUrl(url)
+                        .fileSize(file.getSize())
+                        .attachmentType(attachmentType.getType())
+                        .uploaderIdx(memberIdx)
+                        .mappedId(mappedId)
+                        .created(LocalDateTime.now())
+                        .updated(LocalDateTime.now())
+                        .build());
+            }
+
+            return saveDB(saveImageDataList, attachmentType, mappedId);
+        } catch (CustomException e) {
+            new CustomException(CustomExceptionCode.SERVER_ERROR);
         }
-
-        //MultipartFile로 받은 객체를 File 객체로 변환
-        for (MultipartFile file : multipartFile) {
-            //업로드 시도한 파일 제한 용량 검증
-            validateFileSize(file);
-            //MultipartFile -> File 객체로 convert
-            File convertFile = convert(file).orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
-            //s3에 적재될 유니크한 파일 이름
-            String saveFileName = generateUniqueFileName(file.getName());
-            //실제 파일 이름.
-            String orginFileName = file.getOriginalFilename();
-            //업로드될 버킷 PATH
-            String bucketPath = attachmentType.getType() + "/" + userId + "/" + mappedId + "/" + saveFileName;//적재할 경로 세팅
-            //업로드 된 이미지 URL
-            String url = putS3(convertFile, bucketPath); //s3에 적재
-            // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
-            removeNewFile(convertFile);
-            //S3 버킷에 적재된 이미지 파일 정보를 게시글정보와 함께 맵핑해서 디비에 저장함.
-            saveImageDataList.add(UploadImage.builder()
-                    .fileName(orginFileName)
-                    .uniqueFileName(saveFileName)
-                    .imageUrl(url)
-                    .fileSize(file.getSize())
-                    .attachmentType(attachmentType.getType())
-                    .mappedId(mappedId)
-                    .created(LocalDateTime.now())
-                    .updated(LocalDateTime.now())
-                    .build());
-        }
-
-        return saveDB(saveImageDataList, attachmentType, mappedId);
+        return null;
     }
 
     /**
@@ -91,7 +99,6 @@ public class UploadService {
      */
     public List<UploadImage> getImageByAttachmentType(AttachmentType attachmentType, long mappedId) {
         List<UploadImage> byAttachmentTypeAndMappedId = uploadRepository.findByAttachmentTypeAndMappedId(attachmentType.getType(), mappedId);
-
         return byAttachmentTypeAndMappedId;
     }
 

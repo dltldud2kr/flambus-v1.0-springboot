@@ -79,7 +79,6 @@ public class StoreServiceImpl implements StoreService {
             storeDto.setRepresentTag(null);
         }
 
-
         //해당 가게 대표 탐험일지
         Map<String, Object> representJournal = new HashMap<>();
         representJournal.put("journalIdx",1);

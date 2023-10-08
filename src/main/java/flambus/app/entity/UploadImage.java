@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public class UploadImage {
     @Id  @GeneratedValue
     private Long idx;
-    private String uploaderIdx;//파일 이름
+    private long uploaderIdx;//파일 이름
     private String fileName;//파일 이름
     private String uniqueFileName;//적재된 파일명
     private String imageUrl; //파일 이미지 URL
