@@ -1,23 +1,16 @@
 package flambus.app.service.impl;
 
 import flambus.app._enum.CustomExceptionCode;
-import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.store.StoreDto;
 import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.dto.store.StoreMapMarkerDto;
-import flambus.app.entity.Review;
-import flambus.app.entity.ReviewTag;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.Store;
 import flambus.app.exception.CustomException;
-import flambus.app.mapper.MemberMapper;
 import flambus.app.mapper.StoreMapper;
-import flambus.app.repository.ReviewTagTypeRepository;
 import flambus.app.repository.StoreRepository;
-import flambus.app.service.MemberService;
 import flambus.app.service.ReviewService;
 import flambus.app.service.StoreService;
-import flambus.app.service.UploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

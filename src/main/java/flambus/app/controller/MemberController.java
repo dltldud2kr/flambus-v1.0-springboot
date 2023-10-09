@@ -10,6 +10,7 @@ import flambus.app.dto.member.TokenDto;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.service.MemberService;
+import flambus.app.service.impl.MemberServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

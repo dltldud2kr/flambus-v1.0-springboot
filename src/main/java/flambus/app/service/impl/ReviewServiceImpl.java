@@ -5,6 +5,7 @@ import flambus.app._enum.CustomExceptionCode;
 import flambus.app.dto.review.CreateReviewRequestDto;
 import flambus.app.dto.review.ModifyReviewRequestDto;
 import flambus.app.dto.store.StoreJounalDto;
+import flambus.app.entity.Member;
 import flambus.app.entity.Review;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.UploadImage;
@@ -12,6 +13,7 @@ import flambus.app.exception.CustomException;
 import flambus.app.repository.ReviewRepository;
 import flambus.app.repository.ReviewTagTypeRepository;
 import flambus.app.repository.UploadRepository;
+import flambus.app.service.MemberService;
 import flambus.app.service.ReviewService;
 import flambus.app.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +36,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private UploadService uploadService;
     @Autowired
-    private UploadRepository uploadRepository;
+    private MemberService memberService;
 
     /**
      * @title 리뷰 작성
@@ -64,6 +66,7 @@ public class ReviewServiceImpl implements ReviewService {
 
             //다시한번 저장.
             reviewRepository.save(review);
+            memberService.addAcorns(request.getMemberIdx(),1);
         } catch (CustomException e) {
             System.out.println("create Journal Error : " + e);
             new CustomException(CustomExceptionCode.SERVER_ERROR);
