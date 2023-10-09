@@ -82,7 +82,7 @@ public class StoreServiceImpl implements StoreService {
         //해당 가게 대표 탐험일지
         //대표 탐험일지는 어떻게 지정할껀지? 좋아요가 많은 순? 좋아요가 다 동일하다면?
         Map<String, Object> representJournal = new HashMap<>();
-        representJournal.put("journalIdx",reviewService.getRepresentReivew(storeIdx));
+        representJournal.put("journalIdx",reviewService.getRepresentReivewIdx(storeIdx));
         representJournal.put("thumbnail","http://www.lampcook.com/wi_files/food_top100/top5/5_1.jpg");
         representJournal.put("likeCount",0);
         representJournal.put("memberIdx",1);

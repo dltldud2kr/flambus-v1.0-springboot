@@ -3,6 +3,7 @@ package flambus.app.controller;
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
 import flambus.app.dto.review.ReviewRequestDto;
+import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.exception.CustomException;
 import flambus.app.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -38,8 +40,19 @@ public class ReviewController {
     })
 
     @GetMapping
-    public ResultDTO getStoreExpJournal() {
-        return null;
+    public ResultDTO<List<StoreJounalDto>> getStoreExpJournal(@RequestParam(value = "storeIdx") long storeIdx,
+                                                              @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+                                                              @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        try {
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "SUCCESS", reviewService.getStoreJounalList(storeIdx, pageNum, pageSize));
+        } catch (CustomException e) {
+            if (e.getCustomErrorCode().getStatusCode().equals("NOT_FOUND")) {
+                return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "작성된 탐험일지가 없어요.", reviewService.getStoreJounalList(storeIdx, pageNum, pageSize));
+            } else {
+                return ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), "서버 요청중 문제가 발생했어요.", null);
+            }
+        }
     }
 
 
@@ -65,47 +78,47 @@ public class ReviewController {
     }
 
 
-    @Operation(summary = "작성한 탐험일지 수정", description = "" +
-            "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
-            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-            "\n### Result Code 에 따른 요청 결과" +
-            "\n- ")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
-    })
-    @PatchMapping
-    public ResultDTO modifyJournal() {
-        return null;
-    }
+//    @Operation(summary = "작성한 탐험일지 수정", description = "" +
+//            "\n### HTTP STATUS 에 따른 조회 결과" +
+//            "\n- 200: 서버요청 정상 성공 "+
+//            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+//            "\n### Result Code 에 따른 요청 결과" +
+//            "\n- ")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+//    })
+//    @PatchMapping
+//    public ResultDTO modifyJournal() {
+//        return null;
+//    }
 
-    @Operation(summary = "작성한 탐험일지 삭제", description = "" +
-            "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
-            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-            "\n### Result Code 에 따른 요청 결과" +
-            "\n- ")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
-    })
-    @DeleteMapping
-    public ResultDTO removeJournal() {
-        return null;
-    }
+//    @Operation(summary = "작성한 탐험일지 삭제", description = "" +
+//            "\n### HTTP STATUS 에 따른 조회 결과" +
+//            "\n- 200: 서버요청 정상 성공 "+
+//            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+//            "\n### Result Code 에 따른 요청 결과" +
+//            "\n- ")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+//    })
+//    @DeleteMapping
+//    public ResultDTO removeJournal() {
+//        return null;
+//    }
 
 
-    @Operation(summary = "다른 사용자 탐험일지 좋아요", description = "이미 좋아요 되어있는 경우 좋아요 취소" +
-            "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
-            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-            "\n### Result Code 에 따른 요청 결과" +
-            "\n- ")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
-    })
-    @PostMapping("/like")
-    public ResultDTO setJournalPostLike() {
-        return null;
-    }
+//    @Operation(summary = "다른 사용자 탐험일지 좋아요", description = "이미 좋아요 되어있는 경우 좋아요 취소" +
+//            "\n### HTTP STATUS 에 따른 조회 결과" +
+//            "\n- 200: 서버요청 정상 성공 "+
+//            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+//            "\n### Result Code 에 따른 요청 결과" +
+//            "\n- ")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+//    })
+//    @PostMapping("/like")
+//    public ResultDTO setJournalPostLike() {
+//        return null;
+//    }
 
 }

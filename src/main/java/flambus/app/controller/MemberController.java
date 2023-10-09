@@ -113,7 +113,7 @@ public class MemberController {
     })
 
     @GetMapping("/member")
-    public ResultDTO member(@RequestParam("idx") long memberIdx) {
+    public ResultDTO<MemberDto> member(@RequestParam("idx") long memberIdx) {
         Member member = memberService.getMember(memberIdx);
 
         MemberDto memberDto =  MemberDto.builder()

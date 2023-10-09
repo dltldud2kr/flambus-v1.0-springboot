@@ -3,6 +3,7 @@ package flambus.app.service.impl;
 import flambus.app._enum.AttachmentType;
 import flambus.app._enum.CustomExceptionCode;
 import flambus.app.dto.review.ReviewRequestDto;
+import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.entity.Review;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.UploadImage;
@@ -12,14 +13,14 @@ import flambus.app.repository.ReviewTagTypeRepository;
 import flambus.app.service.ReviewService;
 import flambus.app.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -81,8 +82,56 @@ public class ReviewServiceImpl implements ReviewService {
      * @return
      */
     @Override
-    public long getRepresentReivew(long storeIdx) {
+    public long getRepresentReivewIdx(long storeIdx) {
         return 0;
+    }
+
+    /**
+     * @title 가게 탐험일지 리스트 요청
+     * @param storeIdx
+     * @param pageNum 페이지 넘버
+     * @param pageSize 각 페이지 표시 개수.
+     * @return
+     */
+    @Override
+    public List<StoreJounalDto> getStoreJounalList(long storeIdx, int pageNum,int pageSize) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        List<Review> byStoreIdx = reviewRepository.findByStoreIdx(storeIdx, pageable);
+
+        //해당 가게에 작성된 리뷰가 0개인 경우
+        if(byStoreIdx.size() == 0) {
+            new CustomException(CustomExceptionCode.NOT_FOUND);
+        }
+
+        List<StoreJounalDto> storeJounalDtos = new ArrayList<>();
+
+        //작성된 리뷰를 DTO로 변환합니다.
+        for (Review review : byStoreIdx) {
+            List<UploadImage> imageByAttachmentType = uploadService.getImageByAttachmentType(AttachmentType.REVIEW, review.getIdx());
+
+            //작성된 리뷰에 업로드된 이미지 정보를 가져옵니다.
+            Map<String,Object> reviewImage = new HashMap<>();
+            List<Map<String,Object>> imageList = new ArrayList<>();
+
+            for (UploadImage uploadImage : imageByAttachmentType) {
+                reviewImage.put("imageUrl",uploadImage.getImageUrl());
+                reviewImage.put("fileName",uploadImage.getFileName());
+                reviewImage.put("fileSize",uploadImage.getFileSize());
+            }
+            imageList.add(reviewImage);
+
+            //완성된 정보를 Dto에 맵핑
+            storeJounalDtos.add(StoreJounalDto.builder()
+                    .idx(review.getIdx())
+                    .content(review.getContent())
+                    .memberIdx(review.getMemberIdx())
+                    .jounalImage(imageList)
+                    .created(review.getCreated())
+                    .modified(review.getModified())
+                    .build());
+        }
+
+        return storeJounalDtos;
     }
 
 
