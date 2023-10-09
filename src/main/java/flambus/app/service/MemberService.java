@@ -10,6 +10,7 @@ import flambus.app.dto.store.StoreMapMarkerDto;
 import flambus.app.entity.Member;
 import flambus.app.entity.Store;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,8 +29,9 @@ public interface MemberService {
 
     boolean isAdmin(long memberIdx);
 
-    long addAcorns(long memberIdx,int count);
+    @Transactional
+    long addAcorns(Member member, int count);
 
-    long removeAcorns(long memberIdx,int count);
-
+    @Transactional
+    long removeAcorns(Member member, int count);
 }

@@ -56,7 +56,7 @@ public class ReviewController {
     }
 
 
-    @Operation(summary = "신규 탐험일지 작성", description = "" +
+    @Operation(summary = "신규 탐험일지 작성", description = "리뷰 작성시 보유 도토리 가 1개 추가로 증가합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +

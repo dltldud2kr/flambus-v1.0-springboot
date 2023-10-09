@@ -130,15 +130,13 @@ public class MemberServiceImpl implements MemberService {
 
     /**
      * @title 도토리 지급을 위한 함수입니다.
-     * @param memberIdx 지급할 사용자
+     * @param member 지급할 사용자
      * @param count 지급할 도토리 개수
      * @return
      */
     @Override
-    @Transactional
-    public long addAcorns(long memberIdx, int count) {
-        Long acornsCount = getMember(memberIdx).getAcornsCount() + count;
-        Member member = memberRepository.findById(memberIdx).get();
+    public long addAcorns(Member member, int count) {
+        Long acornsCount = member.getAcornsCount() + count;
         member.setAcornsCount(acornsCount);
         memberRepository.save(member);
         return acornsCount;
@@ -146,18 +144,16 @@ public class MemberServiceImpl implements MemberService {
 
     /**
      * @title 사용자 보유 도토리를 감소시킵니다.
-     * @param memberIdx 감소시킬 사용자
+     * @param member 감소시킬 사용자
      * @param count 수소시킬 도토리 개수
      * @return
      */
     @Override
-    @Transactional
-    public long removeAcorns(long memberIdx, int count) {
-        if(getMember(memberIdx).getAcornsCount() == 0) {
+    public long removeAcorns(Member member, int count) {
+        if(member.getAcornsCount() == 0) {
             return 0;
         }
-        Long acornsCount = getMember(memberIdx).getAcornsCount() - count;
-        Member member = memberRepository.findById(memberIdx).get();
+        Long acornsCount = member.getAcornsCount() - count;
         member.setAcornsCount(acornsCount);
         memberRepository.save(member);
         return acornsCount;

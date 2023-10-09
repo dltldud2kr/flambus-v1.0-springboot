@@ -66,7 +66,7 @@ public class ReviewServiceImpl implements ReviewService {
 
             //다시한번 저장.
             reviewRepository.save(review);
-            memberService.addAcorns(request.getMemberIdx(),1);
+            memberService.addAcorns(memberService.getMember(request.getMemberIdx()),1);
         } catch (CustomException e) {
             System.out.println("create Journal Error : " + e);
             new CustomException(CustomExceptionCode.SERVER_ERROR);
