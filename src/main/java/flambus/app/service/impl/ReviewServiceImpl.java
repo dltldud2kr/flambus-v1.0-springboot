@@ -2,7 +2,8 @@ package flambus.app.service.impl;
 
 import flambus.app._enum.AttachmentType;
 import flambus.app._enum.CustomExceptionCode;
-import flambus.app.dto.review.ReviewRequestDto;
+import flambus.app.dto.review.CreateReviewRequestDto;
+import flambus.app.dto.review.ModifyReviewRequestDto;
 import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.entity.Review;
 import flambus.app.entity.ReviewTagType;
@@ -10,6 +11,7 @@ import flambus.app.entity.UploadImage;
 import flambus.app.exception.CustomException;
 import flambus.app.repository.ReviewRepository;
 import flambus.app.repository.ReviewTagTypeRepository;
+import flambus.app.repository.UploadRepository;
 import flambus.app.service.ReviewService;
 import flambus.app.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -30,6 +33,8 @@ public class ReviewServiceImpl implements ReviewService {
     private ReviewTagTypeRepository reviewTagTypeRepository;
     @Autowired
     private UploadService uploadService;
+    @Autowired
+    private UploadRepository uploadRepository;
 
     /**
      * @title 리뷰 작성
@@ -37,10 +42,9 @@ public class ReviewServiceImpl implements ReviewService {
      * @Author 최성우
      */
     @Override
-    @Transactional
-    public void createJournal(ReviewRequestDto request) throws IOException {
+//    @Transactional
+    public void createJournal(CreateReviewRequestDto request) throws IOException {
         //업로드한 리뷰 이미지가 존재한다면 리뷰 이미지 업로드를 진행합니다.
-
         try {
             Review review = new Review();
 
@@ -63,6 +67,64 @@ public class ReviewServiceImpl implements ReviewService {
         } catch (CustomException e) {
             System.out.println("create Journal Error : " + e);
             new CustomException(CustomExceptionCode.SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @param request
+     * @title 작성된 리뷰 수정
+     * @description 리뷰 수정요청시 기존 업로드 되었던 S3 업로드 정보를 모두 삭제합니다.
+     * 수정요청에 새로 담겨있는 첨부파일로 새로 업로드하고 DB에 새로 맵핑합니다.
+     */
+    @Override
+//    @Transactional
+    public void updateJournal(ModifyReviewRequestDto request) {
+        try {
+            //수정 요청한 리뷰를 확인함
+            Review createdReview = reviewRepository.findById(request.getReviewIdx()).get();
+
+            //수정을 요청한 사용자와 작성자가 다른 경우 : (본인인지의 대한 유효성 검사)
+            if (createdReview.getMemberIdx() != request.getMemberIdx()) {
+                throw new CustomException(CustomExceptionCode.ACCESS_DENIED);
+            }
+
+            //유효성 검증에 모두 통과했다면 버킷에 업로드되어있는 리뷰 파일을 모두 삭제합니다.
+            //해당 리뷰에 업로드 등록되어있는 이미지를 검색합니다.
+            List<UploadImage> imageByAttachmentType = uploadService.getImageByAttachmentType(AttachmentType.REVIEW, request.getReviewIdx());
+            String[] removeTarget = new String[imageByAttachmentType.size() + 1];
+
+            int removeCount = 0;
+            //업로드된 이미지가 잇는 경우
+            if (imageByAttachmentType.size() > 0) {
+                for (UploadImage file : imageByAttachmentType) {
+                    // 문자열에서 ".com/" 다음의 정보를 추출
+                    int startIndex = file.getImageUrl().indexOf(".com/") + 5;
+                    String result = file.getImageUrl().substring(startIndex);
+                    removeTarget[removeCount] = result;
+                    removeCount++;
+                }
+                //등록되어있는 파일 정보 삭제 요청.
+                uploadService.removeS3Files(removeTarget);
+                //데이터베이스에 맵핑되어있는 정보삭제
+                uploadService.removeDatabaseByReviewIdx(request.getReviewIdx());
+            }
+
+            //새롭게 요청온 업로드 이미지를  버킷에 업로드함.
+            uploadService.upload(request.getReviewImage(), request.getMemberIdx(), AttachmentType.REVIEW, createdReview.getIdx());
+
+            //업로드된 이미지 정보를 데이터베이스
+            List<UploadImage> getRepresentIdx = uploadService.getImageByAttachmentType(AttachmentType.REVIEW, createdReview.getIdx());
+
+            createdReview.setContent(request.getContent());
+            createdReview.setMemberIdx(request.getMemberIdx());
+            createdReview.setStoreIdx(request.getStoreIdx());
+            createdReview.setCreated(createdReview.getCreated());//생성일은 그대로.
+            createdReview.setModified(LocalDateTime.now());
+            createdReview.setRepresentIdx(getRepresentIdx.get(0).getIdx()); //업로드 이미지의 1번째를 리뷰의 대표이미지로 지정함.
+
+            reviewRepository.save(createdReview);
+        } catch (CustomException e) {
+            System.err.println("modifyJournal Exception : " + e);
         }
     }
 
@@ -119,6 +181,7 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewImage.put("fileName",uploadImage.getFileName());
                 reviewImage.put("fileSize",uploadImage.getFileSize());
             }
+
             imageList.add(reviewImage);
 
             //완성된 정보를 Dto에 맵핑

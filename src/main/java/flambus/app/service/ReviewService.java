@@ -1,7 +1,8 @@
 package flambus.app.service;
 
 
-import flambus.app.dto.review.ReviewRequestDto;
+import flambus.app.dto.review.CreateReviewRequestDto;
+import flambus.app.dto.review.ModifyReviewRequestDto;
 import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.entity.ReviewTagType;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,9 @@ import java.util.Optional;
 
 @Service
 public interface ReviewService {
-    void createJournal(ReviewRequestDto reviewRequestDto) throws IOException;
+    void createJournal(CreateReviewRequestDto createReviewRequestDto) throws IOException;
+
+    void updateJournal(ModifyReviewRequestDto modifyReviewRequestDto);
 
     long getTotalReviewCount(long storeIdx);
 

@@ -11,6 +11,6 @@ public interface UploadRepository  extends JpaRepository<UploadImage, Long> {
 
     List<UploadImage> findByAttachmentTypeAndMappedId(String attachmentType, long mappedId);
 
-
+    void deleteByMappedId(long mappedIdx);
 
 }

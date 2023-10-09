@@ -2,7 +2,8 @@ package flambus.app.controller;
 
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
-import flambus.app.dto.review.ReviewRequestDto;
+import flambus.app.dto.review.CreateReviewRequestDto;
+import flambus.app.dto.review.ModifyReviewRequestDto;
 import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.exception.CustomException;
 import flambus.app.service.ReviewService;
@@ -46,8 +47,6 @@ public class ReviewController {
         try {
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "SUCCESS", reviewService.getStoreJounalList(storeIdx, pageNum, pageSize));
         } catch (CustomException e) {
-            System.out.println("e ===== : " + e);
-            System.out.println("e.getCustomErrorCode().getStatusCode() : "+e.getCustomErrorCode().getStatusCode());
             if (e.getCustomErrorCode().getStatusCode().equals("NOT_FOUND")) {
                 return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "작성된 탐험일지가 없어요.", null);
             } else {
@@ -67,9 +66,9 @@ public class ReviewController {
             @ApiResponse(responseCode = "201", description = "서버 요청 성공"),
     })
     @PutMapping
-    public ResultDTO createJournal(ReviewRequestDto reviewRequestDto) {
+    public ResultDTO createJournal(CreateReviewRequestDto createReviewRequestDto) {
         try {
-            reviewService.createJournal(reviewRequestDto);
+            reviewService.createJournal(createReviewRequestDto);
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 등록되었습니다.", null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
@@ -79,19 +78,28 @@ public class ReviewController {
     }
 
 
-//    @Operation(summary = "작성한 탐험일지 수정", description = "" +
-//            "\n### HTTP STATUS 에 따른 조회 결과" +
-//            "\n- 200: 서버요청 정상 성공 "+
-//            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-//            "\n### Result Code 에 따른 요청 결과" +
-//            "\n- ")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
-//    })
-//    @PatchMapping
-//    public ResultDTO modifyJournal() {
-//        return null;
-//    }
+    @Operation(summary = "작성한 탐험일지 수정", description = "리뷰 작성과 동일한 로직입니다. 기존 작성된 리뷰가 삭제되고 해당 리뷰 IDX로 그대로 덮어집니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+    @PatchMapping
+    public ResultDTO modifyJournal(ModifyReviewRequestDto modifyReviewRequestDto) {
+        try {
+            reviewService.updateJournal(modifyReviewRequestDto);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 수정되었어요.", null);
+        } catch (CustomException e) {
+            if(e.getCustomErrorCode().getStatusCode().equals("ACCESS_DENIED")) {
+                return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(),"리뷰 작성자만 수정할 수 있어요.", null);
+            } else {
+                return ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), ApiResponseCode.INTERNAL_SERVER_ERROR.getMessage(), null);
+            }
+        }
+    }
 
 //    @Operation(summary = "작성한 탐험일지 삭제", description = "" +
 //            "\n### HTTP STATUS 에 따른 조회 결과" +

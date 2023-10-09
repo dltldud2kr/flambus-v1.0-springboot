@@ -1,7 +1,10 @@
 package flambus.app.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteBucketRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.Upload;
 import flambus.app._enum.CustomExceptionCode;
@@ -46,7 +49,7 @@ public class UploadService {
      * @title 파일 업로드
      */
     @Transactional
-    public List<Map<String, Object>> upload(List<MultipartFile> multipartFile, long memberIdx, AttachmentType attachmentType, long mappedId) throws IOException {
+    public List<Map<String, Object>> upload(List<MultipartFile> multipartFile, long memberIdx, AttachmentType attachmentType, long mappedId) {
 
         try {
             List<UploadImage> saveImageDataList = new ArrayList<>();
@@ -158,6 +161,54 @@ public class UploadService {
                         .withCannedAcl(CannedAccessControlList.PublicRead)    // PublicRead 권한으로 업로드 됨
         );
         return amazonS3Client.getUrl(bucket, fileName).toString();
+    }
+
+    /**
+     * DB에 맵핑되어있는 업로드 정보 삭제
+     */
+    public void removeDatabaseByReviewIdx(long mappedIdx) {
+        try {
+            uploadRepository.deleteByMappedId(mappedIdx);
+        } catch(Exception e) {
+            System.out.println("Exception removeDatabaseByReviewIdx : " + e);
+        }
+    }
+
+    /**
+     * @title S3 다중 파일 객체 삭제.
+     * @param filePath
+     * @Author 최성우 (explorerCat)
+     */
+    public void removeS3Files(String[] filePath) {
+        try {
+            DeleteObjectsRequest dor = new DeleteObjectsRequest(bucket)
+                    .withKeys(filePath);
+            amazonS3Client.deleteObjects(dor);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+        }
+    }
+
+    /**
+     * @title 버킷에 저장되어있는 단건 파일을 삭제합니다.
+     * @param filePath : 파일 이름을 포함하는 버킷 path
+     */
+    public void removeS3File(String filePath) {
+        try {
+            //버킷이 존재하는지 검증
+            boolean isBucketExist = amazonS3Client.doesBucketExist(bucket);
+
+            //버킷이 존재하는경우 오브젝트 삭제 진행
+            if (isBucketExist) {
+                amazonS3Client.deleteObject(bucket, filePath);
+                System.out.println("S3 Object 삭제 성공 : " + filePath);
+            } else {
+                throw new CustomException(CustomExceptionCode.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.out.println("S3 Object 삭제 실패 : " + e);
+            log.debug("S3 Object 삭제 실패 : ", e);
+        }
     }
 
     /**
