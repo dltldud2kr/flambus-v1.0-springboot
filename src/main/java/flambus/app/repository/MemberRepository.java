@@ -15,6 +15,7 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
+
     @Modifying
     @Query(value = "UPDATE member SET refresh_token = :refreshToken WHERE email = :email", nativeQuery = true)
     void updateRefreshToken(@Param("email") String email, @Param("refreshToken") String refreshToken);

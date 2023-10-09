@@ -43,12 +43,13 @@ public class ReviewController {
     public ResultDTO<List<StoreJounalDto>> getStoreExpJournal(@RequestParam(value = "storeIdx") long storeIdx,
                                                               @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
                                                               @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-
         try {
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "SUCCESS", reviewService.getStoreJounalList(storeIdx, pageNum, pageSize));
         } catch (CustomException e) {
+            System.out.println("e ===== : " + e);
+            System.out.println("e.getCustomErrorCode().getStatusCode() : "+e.getCustomErrorCode().getStatusCode());
             if (e.getCustomErrorCode().getStatusCode().equals("NOT_FOUND")) {
-                return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "작성된 탐험일지가 없어요.", reviewService.getStoreJounalList(storeIdx, pageNum, pageSize));
+                return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "작성된 탐험일지가 없어요.", null);
             } else {
                 return ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), "서버 요청중 문제가 발생했어요.", null);
             }

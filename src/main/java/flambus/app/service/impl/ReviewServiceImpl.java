@@ -96,17 +96,18 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<StoreJounalDto> getStoreJounalList(long storeIdx, int pageNum,int pageSize) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
-        List<Review> byStoreIdx = reviewRepository.findByStoreIdx(storeIdx, pageable);
+        List<Review> byStoreIdx = reviewRepository.findByStoreIdx(storeIdx,pageable);
 
         //해당 가게에 작성된 리뷰가 0개인 경우
         if(byStoreIdx.size() == 0) {
-            new CustomException(CustomExceptionCode.NOT_FOUND);
+            throw new CustomException(CustomExceptionCode.NOT_FOUND);
         }
 
         List<StoreJounalDto> storeJounalDtos = new ArrayList<>();
 
         //작성된 리뷰를 DTO로 변환합니다.
         for (Review review : byStoreIdx) {
+
             List<UploadImage> imageByAttachmentType = uploadService.getImageByAttachmentType(AttachmentType.REVIEW, review.getIdx());
 
             //작성된 리뷰에 업로드된 이미지 정보를 가져옵니다.

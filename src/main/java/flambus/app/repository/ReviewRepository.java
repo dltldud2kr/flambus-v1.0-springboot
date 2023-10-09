@@ -18,11 +18,6 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Long countByStoreIdx(long storeIdx);
-
-    @Query
-    List<Review> findByStoreIdx(long storeIdx, Pageable pageable);
-
-
-
+    List<Review> findByStoreIdx(long storeIdx,Pageable pageable);
 
 }
