@@ -48,6 +48,11 @@ dependencies {
 }
 
 
+//build시 plan.jar은 빌드에서 제거합니다.
+jar {
+	enabled = false
+}
+
 tasks.named('test') {
-	useJUnitPlatform()
+//	useJUnitPlatform()
 }
