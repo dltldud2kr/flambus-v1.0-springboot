@@ -9,7 +9,7 @@
 <!--        SELECT rt.*, rtt.idx AS review_tag_type_idx-->
 <!--        FROM review_tag AS rt-->
 <!--        INNER JOIN review_tag_type AS rtt ON rt.tag_idx = rtt.tag_idx-->
-<!--        INNER JOIN review AS r ON rt.review_idx = r.idx;-->
+<!--        INNER JOIN review AS r ON rt.review_idx = r.idx;testest-->
     </select>
 
 </mapper>
