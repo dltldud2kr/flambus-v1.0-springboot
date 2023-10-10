@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 @Mapper
-public interface StoreMapper {
+public interface ReviewMapper {
 
-    Long findMostUsedTagIdx(@Param("storeIdx") long storeIdx);
+    List<ReviewResponseDTO.ReviewTag> findReviewTag(@Param("reviewIdx") long reviewIdx);
 
 }

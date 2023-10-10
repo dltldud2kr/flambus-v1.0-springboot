@@ -1,8 +1,8 @@
 package flambus.app.service.impl;
 
 import flambus.app._enum.CustomExceptionCode;
+import flambus.app.dto.review.ReviewResponseDTO;
 import flambus.app.dto.store.StoreDto;
-import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.dto.store.StoreMapMarkerDto;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.Store;
@@ -88,16 +88,11 @@ public class StoreServiceImpl implements StoreService {
         return storeDto;
     }
 
-
-    /**
-     * @title 해당 가게의 사용자들이 작성한 탐험일지 정보 리스트 보기
-     * @return
-     */
     @Override
-    public List<StoreJounalDto> getStoreExpJournal() {
-
+    public List<ReviewResponseDTO.Review> getStoreExpJournal() {
         return null;
     }
+
 
     @Override
     public Store getStore(long storeIdx) {
