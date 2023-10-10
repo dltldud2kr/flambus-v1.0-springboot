@@ -4,29 +4,30 @@ import flambus.app._enum.AttachmentType;
 import flambus.app._enum.CustomExceptionCode;
 import flambus.app.dto.review.CreateReviewRequestDto;
 import flambus.app.dto.review.ModifyReviewRequestDto;
-import flambus.app.dto.review.ReviewResponseDTO;
+import flambus.app.dto.store.StoreJounalDto;
+import flambus.app.entity.Member;
 import flambus.app.entity.Review;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.UploadImage;
 import flambus.app.exception.CustomException;
-import flambus.app.mapper.ReviewMapper;
 import flambus.app.repository.ReviewRepository;
 import flambus.app.repository.ReviewTagTypeRepository;
+import flambus.app.repository.UploadRepository;
 import flambus.app.service.MemberService;
 import flambus.app.service.ReviewService;
 import flambus.app.service.UploadService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
@@ -36,7 +37,6 @@ public class ReviewServiceImpl implements ReviewService {
     private UploadService uploadService;
     @Autowired
     private MemberService memberService;
-    private final ReviewMapper reviewMapper;
 
     /**
      * @title 리뷰 작성
@@ -152,14 +152,14 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     /**
+     * @title 가게 탐험일지 리스트 요청
      * @param storeIdx
-     * @param pageNum  페이지 넘버
+     * @param pageNum 페이지 넘버
      * @param pageSize 각 페이지 표시 개수.
      * @return
-     * @title 가게 탐험일지 리스트 요청
      */
     @Override
-    public List<ReviewResponseDTO.Review> getStoreJounalList(long storeIdx, int pageNum, int pageSize) {
+    public List<StoreJounalDto> getStoreJounalList(long storeIdx, int pageNum,int pageSize) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         List<Review> byStoreIdx = reviewRepository.findByStoreIdx(storeIdx,pageable);
 
@@ -167,7 +167,8 @@ public class ReviewServiceImpl implements ReviewService {
         if(byStoreIdx.size() == 0) {
             throw new CustomException(CustomExceptionCode.NOT_FOUND);
         }
-        List<ReviewResponseDTO.Review> storeJounalDtos = new ArrayList<>();
+
+        List<StoreJounalDto> storeJounalDtos = new ArrayList<>();
 
         //작성된 리뷰를 DTO로 변환합니다.
         for (Review review : byStoreIdx) {
@@ -186,15 +187,12 @@ public class ReviewServiceImpl implements ReviewService {
 
             imageList.add(reviewImage);
 
-            System.out.println("reviewMapper.findReviewTag(review.getIdx()) : " + reviewMapper.findReviewTag(review.getIdx()));
-
             //완성된 정보를 Dto에 맵핑
-            storeJounalDtos.add(ReviewResponseDTO.Review.builder()
+            storeJounalDtos.add(StoreJounalDto.builder()
                     .idx(review.getIdx())
                     .content(review.getContent())
                     .memberIdx(review.getMemberIdx())
                     .jounalImage(imageList)
-                    .jounalTag(reviewMapper.findReviewTag(review.getIdx()))
                     .created(review.getCreated())
                     .modified(review.getModified())
                     .build());
@@ -214,10 +212,5 @@ public class ReviewServiceImpl implements ReviewService {
         Optional<ReviewTagType> reviewTag = reviewTagTypeRepository.findById(idx);
         System.out.println("reviewTag : "+reviewTag.get());
         return reviewTag.orElse(null);
-    }
-
-    @Override
-    public List<ReviewTagType> getReviewAllTag() {
-        return reviewTagTypeRepository.findAll();
     }
 }

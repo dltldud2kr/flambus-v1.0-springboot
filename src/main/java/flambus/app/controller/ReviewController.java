@@ -4,8 +4,7 @@ import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
 import flambus.app.dto.review.CreateReviewRequestDto;
 import flambus.app.dto.review.ModifyReviewRequestDto;
-import flambus.app.dto.review.ReviewResponseDTO;
-import flambus.app.entity.ReviewTagType;
+import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.exception.CustomException;
 import flambus.app.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.util.List;
 @RequestMapping("/api/v1/store/journal")
 @Tag(name = "가게 일지 관련 정보", description = "")
 public class ReviewController {
+
     @Autowired
     private ReviewService reviewService;
 
@@ -40,9 +41,9 @@ public class ReviewController {
     })
 
     @GetMapping
-    public ResultDTO<List<ReviewResponseDTO.Review>> getStoreExpJournal(@RequestParam(value = "storeIdx") long storeIdx,
-                                                                                @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
-                                                                                @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+    public ResultDTO<List<StoreJounalDto>> getStoreExpJournal(@RequestParam(value = "storeIdx") long storeIdx,
+                                                              @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+                                                              @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         try {
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "SUCCESS", reviewService.getStoreJounalList(storeIdx, pageNum, pageSize));
         } catch (CustomException e) {
@@ -128,24 +129,5 @@ public class ReviewController {
 //    public ResultDTO setJournalPostLike() {
 //        return null;
 //    }
-
-
-    @Operation(summary = "탐험일지 전체 태그 리스트", description = "현재 리뷰에 등록할 수 있는 전체 태그 리스트를 반환합니다.\n해당 API로 리뷰 작성시 사용자가 선택할 태그 구현하시면 됩니다." +
-            "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 " +
-            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-            "\n### Result Code 에 따른 요청 결과" +
-            "\n- ")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
-    })
-    @GetMapping("/tag")
-    public ResultDTO<List<ReviewTagType>> getReviewTag() {
-        try {
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "성공", reviewService.getReviewAllTag());
-        } catch (CustomException e) {
-            return ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), ApiResponseCode.INTERNAL_SERVER_ERROR.getMessage(), null);
-        }
-    }
 
 }
