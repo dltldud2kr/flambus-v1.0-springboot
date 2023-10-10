@@ -80,15 +80,15 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "회원가입 요청", description = "" +
-            "임시 회원가입을 요청합니다." +
-            "회원가입 화면 디자인 완료시 예외처리 및 추가 개발 예정입니다." +
-            "테스트 용도로 확인만 해주세요." +
-            "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 201: 회원가입 성공 "+
-            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-            "\n### Result Code 에 따른 요청 결과" +
-            "\n- DUPLICATED: 동일한 이메일이 존재합니다."
+        @Operation(summary = "회원가입 요청", description = "" +
+                "임시 회원가입을 요청합니다." +
+                "회원가입 화면 디자인 완료시 예외처리 및 추가 개발 예정입니다." +
+                "테스트 용도로 확인만 해주세요." +
+                "\n### HTTP STATUS 에 따른 조회 결과" +
+                "\n- 201: 회원가입 성공 "+
+                "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+                "\n### Result Code 에 따른 요청 결과" +
+                "\n- DUPLICATED: 동일한 이메일이 존재합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
@@ -191,8 +191,6 @@ public class MemberController {
     public ResultDTO delete() {
         return null;
     }
-
-
 
 
 
