@@ -43,7 +43,6 @@ public class JwtTokenProvider {
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
     public TokenDto generateToken(Authentication authentication) {
-//        System.out.println("principal dfdfd"+ principal.getName()); testest12314
         // 권한 가져오기
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -116,6 +115,8 @@ public class JwtTokenProvider {
         return false;
     }
 
+
+    // Access Token을 파싱하고, 그 안에 포함된 클레임(Claims) 정보를 추출
     private Claims parseClaims(String accessToken) {
         try {
 //            return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken).getBody();

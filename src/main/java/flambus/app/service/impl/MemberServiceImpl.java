@@ -85,6 +85,11 @@ public class MemberServiceImpl implements MemberService {
                     .serviceAgree(false)
                     .serviceAgreeDate(LocalDateTime.now())
                     .termsAgree(false)
+                    .profileImageUrl("test")                // 추가 (널값허용안받음)
+                    .userName("test")                       // 추가 (널값허용안받음)
+                    .withdrawal(false)                      // 추가 (널값허용안받음)
+                    .withdrawalDate(LocalDateTime.now())    //널값허용왜안됨?
+                    .subscriptionDate(LocalDateTime.now())  // 추가
                     .termsAgreeDate(LocalDateTime.now())
                     .useGpsAgree(false)
                     .useGpsAgreeDate(LocalDateTime.now())
