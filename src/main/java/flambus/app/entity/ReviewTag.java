@@ -20,8 +20,6 @@ import java.time.LocalDateTime;
 public class ReviewTag {
     @Id  @GeneratedValue
     private Long idx;//pk
-
-    //가게 idx값이 있는 이유는 해당 가게에서 제일 많이 달린 태그를 알아야하기때문임.
     private Long storeIdx; //리뷰가 달린 가게 idx
     private Long reviewIdx; //해당 리뷰 idx
     private Long tagIdx; //태그 idx
