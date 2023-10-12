@@ -56,6 +56,7 @@ public class Member implements UserDetails {
     private long follower; //팔로워
     @Column(nullable = false)
     private long following; //팔로잉
+
     @Column(nullable = false)
     private long acornsCount; //도토리 개수
     @Column(nullable = false)
@@ -68,6 +69,7 @@ public class Member implements UserDetails {
     private boolean withdrawal; //탈퇴여부 0 , 1
 
     private LocalDateTime withdrawalDate; //탈퇴일자
+    private boolean emailAuth;
 
 
     @ElementCollection(fetch = FetchType.EAGER)

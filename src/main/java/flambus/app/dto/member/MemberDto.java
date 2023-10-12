@@ -28,6 +28,7 @@ public class MemberDto {
     private boolean useGpsAgree; //GPS 이용 약관
     private LocalDateTime useGpsAgreeDate; //약관 동의날짜
     private long follower; //팔로워
+    private boolean emailAuth;
     private long following; //팔로잉
     private long acornsCount; //도토리 개수
     private long canLimitCount; //리뷰 작성 가능 수(탐험일지 작성수) 자정마다 2로

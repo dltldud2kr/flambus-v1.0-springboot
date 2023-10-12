@@ -3,10 +3,12 @@ package flambus.app.controller;
 
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
+import flambus.app.dto.email.emailResponseDto;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.LoginRequestDto;
 import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.member.TokenDto;
+import flambus.app.email.EmailService;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.service.MemberService;
@@ -17,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +32,7 @@ import java.util.List;
 @Tag(name = "회원 관련 API", description = "회원 도메인 관련 API 입니다.")
 public class MemberController {
     private final MemberService memberService;
+    private final EmailService emailService;
 
     @Operation(summary = "로그인 요청", description = "" +
             "회원 로그인을 요청하고 토큰을 발급합니다." +
@@ -127,6 +131,7 @@ public class MemberController {
                 .following(member.getFollowing())
                 .introduce(member.getIntroduce())
                 .platform(member.getPlatform())
+                .emailAuth(member.isEmailAuth())
                 .subscriptionDate(member.getSubscriptionDate())
                 .profileImageUrl(member.getProfileImageUrl())
                 .serviceAgree(member.isServiceAgree())
@@ -190,6 +195,27 @@ public class MemberController {
     @DeleteMapping("/member")
     public ResultDTO delete() {
         return null;
+    }
+
+    @PostMapping("/emailConfirm")
+    public emailResponseDto emailConfirm(@RequestParam String email) throws Exception {
+
+        String confirm = emailService.sendSimpleMessage(email);
+
+        emailResponseDto result =  emailResponseDto.builder()
+                .email(email)
+                .confirm(confirm)
+                .build();
+
+        return result;
+    }
+
+    @GetMapping("/emailConfirm/Auth")
+    public ResponseEntity emailCheck(@RequestBody emailResponseDto dto) {
+
+        ResponseEntity result = memberService.emailCheck(dto);
+
+        return result;
     }
 
 

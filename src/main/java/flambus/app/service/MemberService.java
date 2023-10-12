@@ -1,6 +1,7 @@
 package flambus.app.service;
 
 
+import flambus.app.dto.email.emailResponseDto;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.member.TokenDto;
@@ -9,6 +10,7 @@ import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.dto.store.StoreMapMarkerDto;
 import flambus.app.entity.Member;
 import flambus.app.entity.Store;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,8 @@ public interface MemberService {
     List<MemberDto> getAllMembers();
 
     boolean isAdmin(long memberIdx);
+
+    ResponseEntity emailCheck(emailResponseDto dto);
 
     @Transactional
     long addAcorns(Member member, int count);

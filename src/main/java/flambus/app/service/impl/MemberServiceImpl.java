@@ -2,6 +2,7 @@ package flambus.app.service.impl;
 
 import flambus.app._enum.CustomExceptionCode;
 import flambus.app.auth.JwtTokenProvider;
+import flambus.app.dto.email.emailResponseDto;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.member.TokenDto;
@@ -12,6 +13,7 @@ import flambus.app.repository.MemberRepository;
 import flambus.app.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import org.springframework.security.core.Authentication;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -91,6 +94,7 @@ public class MemberServiceImpl implements MemberService {
                     .withdrawalDate(LocalDateTime.now())    //널값허용왜안됨?
                     .subscriptionDate(LocalDateTime.now())  // 추가
                     .termsAgreeDate(LocalDateTime.now())
+                    .emailAuth(false)                       // 추가
                     .useGpsAgree(false)
                     .useGpsAgreeDate(LocalDateTime.now())
                     .follower(0)
@@ -165,5 +169,20 @@ public class MemberServiceImpl implements MemberService {
     }
 
 
+    @Override
+    public ResponseEntity emailCheck(emailResponseDto dto) {
+
+        System.out.println("test");
+        System.out.println(dto.getEmail());
+        Member member = memberRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("Cannot find user with userId " + dto.getEmail()));
+
+        System.out.println(member.getEmail());
+
+        member.setEmailAuth(true);
+
+        memberRepository.save(member);
+        return ResponseEntity.ok().body("인증완료");
+    }
 
 }
