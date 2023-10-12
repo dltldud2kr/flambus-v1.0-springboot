@@ -8,11 +8,10 @@ import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.LoginRequestDto;
 import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.member.TokenDto;
-import flambus.app.email.EmailService;
+import flambus.app.service.EmailService;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.service.MemberService;
-import flambus.app.service.impl.MemberServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -131,7 +130,6 @@ public class MemberController {
                 .following(member.getFollowing())
                 .introduce(member.getIntroduce())
                 .platform(member.getPlatform())
-                .emailAuth(member.isEmailAuth())
                 .subscriptionDate(member.getSubscriptionDate())
                 .profileImageUrl(member.getProfileImageUrl())
                 .serviceAgree(member.isServiceAgree())

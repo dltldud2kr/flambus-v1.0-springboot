@@ -1,8 +1,8 @@
 package flambus.app.service.impl;
 
 import flambus.app._enum.CustomExceptionCode;
+import flambus.app.dto.review.ReviewResponse;
 import flambus.app.dto.store.StoreDto;
-import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.dto.store.StoreMapMarkerDto;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.Store;
@@ -99,7 +99,7 @@ public class StoreServiceImpl implements StoreService {
      * @return
      */
     @Override
-    public List<StoreJounalDto> getStoreExpJournal() {
+    public List<ReviewResponse.StoreJounalDto> getStoreExpJournal() {
 
         return null;
     }

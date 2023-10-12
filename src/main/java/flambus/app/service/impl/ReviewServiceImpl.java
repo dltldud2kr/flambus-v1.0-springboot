@@ -2,17 +2,15 @@ package flambus.app.service.impl;
 
 import flambus.app._enum.AttachmentType;
 import flambus.app._enum.CustomExceptionCode;
-import flambus.app.dto.review.CreateReviewRequestDto;
-import flambus.app.dto.review.ModifyReviewRequestDto;
-import flambus.app.dto.store.StoreJounalDto;
-import flambus.app.entity.Member;
+import flambus.app.dto.review.ReviewRequest;
+import flambus.app.dto.review.ReviewResponse;
 import flambus.app.entity.Review;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.UploadImage;
 import flambus.app.exception.CustomException;
+import flambus.app.mapper.ReviewMapper;
 import flambus.app.repository.ReviewRepository;
 import flambus.app.repository.ReviewTagTypeRepository;
-import flambus.app.repository.UploadRepository;
 import flambus.app.service.MemberService;
 import flambus.app.service.ReviewService;
 import flambus.app.service.UploadService;
@@ -20,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -38,6 +34,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private MemberService memberService;
 
+    @Autowired
+    private ReviewMapper reviewMapper;
+
     /**
      * @title 리뷰 작성
      * @created 23.10.08
@@ -45,7 +44,7 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
 //    @Transactional
-    public void createJournal(CreateReviewRequestDto request) throws IOException {
+    public void createJournal(ReviewRequest.CreateReviewRequestDto request) throws IOException {
         //업로드한 리뷰 이미지가 존재한다면 리뷰 이미지 업로드를 진행합니다.
         try {
             Review review = new Review();
@@ -61,11 +60,14 @@ public class ReviewServiceImpl implements ReviewService {
 
             //정상적으로 리뷰가 생성됐는 경우 리뷰에 등록할 이미지를 첨부했는지 확인하고 해당 리뷰 IDX에 이미지 업로드를 실행함
             uploadService.upload(request.getReviewImage(), request.getMemberIdx(), AttachmentType.REVIEW, savedReivew.getIdx());
+
             //업로드에 성공했다면 해당 리뷰에 업로드된 이미지 중 0번째 이미지를 대표 이미지로 지정함.
             review.setRepresentIdx(uploadService.getImageByAttachmentType(AttachmentType.REVIEW, savedReivew.getIdx()).get(0).getIdx());
 
             //다시한번 저장.
             reviewRepository.save(review);
+
+            //도토리 1개 지급.
             memberService.addAcorns(memberService.getMember(request.getMemberIdx()),1);
         } catch (CustomException e) {
             System.out.println("create Journal Error : " + e);
@@ -81,7 +83,7 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
 //    @Transactional
-    public void updateJournal(ModifyReviewRequestDto request) {
+    public void updateJournal(ReviewRequest.ModifyReviewRequestDto request) {
         try {
             //수정 요청한 리뷰를 확인함
             Review createdReview = reviewRepository.findById(request.getReviewIdx()).get();
@@ -133,7 +135,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     /**
      * @title 해당 게시글에 작성된 리뷰 개수 확인.
-     * @return 리뷰개수
+     * @return 리뷰 개수
      */
     @Override
     public long getTotalReviewCount(long storeIdx) {
@@ -159,8 +161,9 @@ public class ReviewServiceImpl implements ReviewService {
      * @return
      */
     @Override
-    public List<StoreJounalDto> getStoreJounalList(long storeIdx, int pageNum,int pageSize) {
+    public List<ReviewResponse.StoreJounalDto> getStoreJounalList(Long storeIdx, int pageNum,int pageSize) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
+        //해당 storeIdx의 리뷰들을 찾아옴.
         List<Review> byStoreIdx = reviewRepository.findByStoreIdx(storeIdx,pageable);
 
         //해당 가게에 작성된 리뷰가 0개인 경우
@@ -168,7 +171,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(CustomExceptionCode.NOT_FOUND);
         }
 
-        List<StoreJounalDto> storeJounalDtos = new ArrayList<>();
+        List<ReviewResponse.StoreJounalDto> storeJounalDtos = new ArrayList<>();
 
         //작성된 리뷰를 DTO로 변환합니다.
         for (Review review : byStoreIdx) {
@@ -187,12 +190,26 @@ public class ReviewServiceImpl implements ReviewService {
 
             imageList.add(reviewImage);
 
+            //해당 스토어의 모든 리뷰에 붙은 태그정보를 조회함.
+            List<Map<String, Object>> review_tag_list = reviewMapper.selectList(storeIdx);
+            //각 리뷰의 태그 정보를 담을 빈 리스트
+            List<Map<String, Object>> tagList = new ArrayList<>();
+
+            //해당 리뷰에 달린 태그들을 찾아냄.
+            for (Map<String, Object> tag : review_tag_list) {
+                if (tag.get("review_idx") == review.getIdx()) {
+                    tagList.add(tag);
+                }
+            }
+
             //완성된 정보를 Dto에 맵핑
-            storeJounalDtos.add(StoreJounalDto.builder()
+            storeJounalDtos.add(ReviewResponse.StoreJounalDto.builder()
                     .idx(review.getIdx())
+                    .storeIdx(storeIdx)
                     .content(review.getContent())
                     .memberIdx(review.getMemberIdx())
                     .jounalImage(imageList)
+                    .tagList(tagList)
                     .created(review.getCreated())
                     .modified(review.getModified())
                     .build());

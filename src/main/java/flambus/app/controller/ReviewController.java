@@ -2,9 +2,9 @@ package flambus.app.controller;
 
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
-import flambus.app.dto.review.CreateReviewRequestDto;
-import flambus.app.dto.review.ModifyReviewRequestDto;
-import flambus.app.dto.store.StoreJounalDto;
+import flambus.app.dto.review.ReviewRequest;
+import flambus.app.dto.review.ReviewResponse;
+import flambus.app.entity.ReviewTagType;
 import flambus.app.exception.CustomException;
 import flambus.app.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -41,9 +40,9 @@ public class ReviewController {
     })
 
     @GetMapping
-    public ResultDTO<List<StoreJounalDto>> getStoreExpJournal(@RequestParam(value = "storeIdx") long storeIdx,
-                                                              @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
-                                                              @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+    public ResultDTO<List<ReviewResponse.StoreJounalDto>> getStoreExpJournal(@RequestParam(value = "storeIdx") Long storeIdx,
+                                                                             @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+                                                                             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         try {
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "SUCCESS", reviewService.getStoreJounalList(storeIdx, pageNum, pageSize));
         } catch (CustomException e) {
@@ -66,9 +65,9 @@ public class ReviewController {
             @ApiResponse(responseCode = "201", description = "서버 요청 성공"),
     })
     @PutMapping
-    public ResultDTO createJournal(CreateReviewRequestDto createReviewRequestDto) {
+    public ResultDTO createJournal(ReviewRequest.CreateReviewRequestDto request) {
         try {
-            reviewService.createJournal(createReviewRequestDto);
+            reviewService.createJournal(request);
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 등록되었습니다.", null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
@@ -88,9 +87,9 @@ public class ReviewController {
             @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
     })
     @PatchMapping
-    public ResultDTO modifyJournal(ModifyReviewRequestDto modifyReviewRequestDto) {
+    public ResultDTO modifyJournal(ReviewRequest.ModifyReviewRequestDto request) {
         try {
-            reviewService.updateJournal(modifyReviewRequestDto);
+            reviewService.updateJournal(request);
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 수정되었어요.", null);
         } catch (CustomException e) {
             if(e.getCustomErrorCode().getStatusCode().equals("ACCESS_DENIED")) {
@@ -100,6 +99,30 @@ public class ReviewController {
             }
         }
     }
+
+//    @Operation(summary = "전체 리뷰태그를 반환합니다.", description = "현재 리뷰에 등록할 수 있는 태그 목록 " +
+//            "\n### HTTP STATUS 에 따른 조회 결과" +
+//            "\n- 200: 서버요청 정상 성공 "+
+//            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+//            "\n### Result Code 에 따른 요청 결과" +
+//            "\n- ")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+//    })
+//    @GetMapping
+//    public ResultDTO<ReviewTagType> getReviewTagType() {
+//        try {
+//            reviewService.updateJournal(request);
+//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 수정되었어요.", null);
+//        } catch (CustomException e) {
+//            if(e.getCustomErrorCode().getStatusCode().equals("ACCESS_DENIED")) {
+//                return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(),"리뷰 작성자만 수정할 수 있어요.", null);
+//            } else {
+//                return ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), ApiResponseCode.INTERNAL_SERVER_ERROR.getMessage(), null);
+//            }
+//        }
+//    }
+
 
 //    @Operation(summary = "작성한 탐험일지 삭제", description = "" +
 //            "\n### HTTP STATUS 에 따른 조회 결과" +

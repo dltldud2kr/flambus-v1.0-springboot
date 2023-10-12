@@ -1,8 +1,8 @@
 package flambus.app.service;
 
 
+import flambus.app.dto.review.ReviewResponse;
 import flambus.app.dto.store.StoreDto;
-import flambus.app.dto.store.StoreJounalDto;
 import flambus.app.dto.store.StoreMapMarkerDto;
 import flambus.app.entity.Store;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public interface StoreService {
 
     StoreDto getStoreInfo(long storeIdx);
 
-    List<StoreJounalDto> getStoreExpJournal();
+    List<ReviewResponse.StoreJounalDto> getStoreExpJournal();
 
     Store getStore(long storeIdx);
 

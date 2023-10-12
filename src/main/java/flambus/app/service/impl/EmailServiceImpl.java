@@ -1,5 +1,6 @@
-package flambus.app.email;
+package flambus.app.service.impl;
 
+import flambus.app.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,7 +12,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Random;
 
 @Service
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private JavaMailSender emailSender;
