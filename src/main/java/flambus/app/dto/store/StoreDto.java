@@ -2,6 +2,7 @@ package flambus.app.dto.store;
 
 
 import flambus.app.dto.member.MemberDto;
+import flambus.app.dto.review.ReviewResponse;
 import lombok.*;
 
 import java.util.Map;
@@ -23,6 +24,6 @@ public class StoreDto {
     private long expJournalsCount; //가게 탐험일지 개수
     private long ownExpSiteCount; //사용자들이 지정한 나만의 탐험지 개수(찜)
     private Map<String, Object> representTag; //대표 태그
-    private Map<String, Object> representJournal; //대표 일지, 대표이미지,작성자 정보 등
+    private ReviewResponse.MostLikeReviewDto representJournal; //대표 일지, 대표이미지,작성자 정보 등
 
 }

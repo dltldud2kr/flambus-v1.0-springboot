@@ -7,9 +7,6 @@ import java.util.List;
 
 @Mapper
 public interface StoreMapper {
-
     Long findMostUsedTagIdx(@Param("storeIdx") long storeIdx);
-
-
 
 }

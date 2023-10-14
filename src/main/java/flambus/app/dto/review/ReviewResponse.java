@@ -1,6 +1,8 @@
 package flambus.app.dto.review;
 
 
+import flambus.app.dto.upload.FileResponse;
+import jdk.vm.ci.meta.Local;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +18,7 @@ public class ReviewResponse {
     @Data
     @AllArgsConstructor
     public static class StoreJounalDto {
-        private Long idx;//리뷰 idx
+        private Long reviewidx;//리뷰 idx
         private Long storeIdx;
         private Long memberIdx;//리뷰 작성자 idx
         private String content; //리뷰내용
@@ -25,6 +27,19 @@ public class ReviewResponse {
         private LocalDateTime created; //작성 시간
         private LocalDateTime modified; //수정 시간
     }
+
+    @Builder
+    @Data
+    @AllArgsConstructor
+    public static class MostLikeReviewDto {
+        private Long reviewIdx;
+        private Long storeIdx;
+        private Long likeCount;
+        private Map<String,Object> creator;
+        private FileResponse.ReviewImageDto reviewImage;
+
+    }
+
     @Builder
     @Data
     @AllArgsConstructor

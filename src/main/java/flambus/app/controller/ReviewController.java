@@ -68,7 +68,7 @@ public class ReviewController {
     public ResultDTO createJournal(ReviewRequest.CreateReviewRequestDto request) {
         try {
             reviewService.createJournal(request);
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 등록되었습니다.", null);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 등록됐어요", null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         } catch (IOException e) {
@@ -100,28 +100,23 @@ public class ReviewController {
         }
     }
 
-//    @Operation(summary = "전체 리뷰태그를 반환합니다.", description = "현재 리뷰에 등록할 수 있는 태그 목록 " +
-//            "\n### HTTP STATUS 에 따른 조회 결과" +
-//            "\n- 200: 서버요청 정상 성공 "+
-//            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-//            "\n### Result Code 에 따른 요청 결과" +
-//            "\n- ")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
-//    })
-//    @GetMapping
-//    public ResultDTO<ReviewTagType> getReviewTagType() {
-//        try {
-//            reviewService.updateJournal(request);
-//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 수정되었어요.", null);
-//        } catch (CustomException e) {
-//            if(e.getCustomErrorCode().getStatusCode().equals("ACCESS_DENIED")) {
-//                return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(),"리뷰 작성자만 수정할 수 있어요.", null);
-//            } else {
-//                return ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), ApiResponseCode.INTERNAL_SERVER_ERROR.getMessage(), null);
-//            }
-//        }
-//    }
+    @Operation(summary = "전체 리뷰태그를 반환합니다.", description = "현재 리뷰에 등록할 수 있는 태그 목록" +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+    @GetMapping("/tags")
+    public ResultDTO<List<ReviewTagType>> getReviewTagType() {
+        try {
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "성공", reviewService.getAllReviewTags());
+        } catch (CustomException e) {
+            return ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), ApiResponseCode.INTERNAL_SERVER_ERROR.getMessage(), null);
+        }
+    }
 
 
 //    @Operation(summary = "작성한 탐험일지 삭제", description = "" +

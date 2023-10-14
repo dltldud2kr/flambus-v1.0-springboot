@@ -3,11 +3,13 @@ package flambus.app.service;
 
 import flambus.app.dto.review.ReviewRequest;
 import flambus.app.dto.review.ReviewResponse;
+import flambus.app.entity.Review;
 import flambus.app.entity.ReviewTagType;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface ReviewService {
@@ -17,8 +19,9 @@ public interface ReviewService {
     void updateJournal(ReviewRequest.ModifyReviewRequestDto request);
 
     long getTotalReviewCount(long storeIdx);
+    List<ReviewTagType> getAllReviewTags();
 
-    long getRepresentReivewIdx(long storeIdx);
+    Map<String,Object> getMostLikeReview(long storeIdx);
 
     List<ReviewResponse.StoreJounalDto> getStoreJounalList(Long storeIdx, int pageNum, int pageSize);
 

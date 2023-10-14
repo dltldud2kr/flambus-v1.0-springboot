@@ -209,8 +209,6 @@ public class MemberController {
 
     @PostMapping("/emailSend")
     public ResponseEntity emailSend(@RequestParam String email) throws Exception {
-
-
         return ResponseEntity.ok(emailService.sendEmailVerification(email));
     }
 
@@ -229,8 +227,6 @@ public class MemberController {
     // 인증한 이메일의 이메일인증여부를 변경 (0:미인증 1:인증 :2가입완료)
     @GetMapping("/email/Auth")
     public ResponseEntity emailCheck(@RequestParam(value = "email", required = true) String email) {
-
-
         return ResponseEntity.ok(memberService.emailCheck(email));
     }
 

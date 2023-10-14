@@ -17,9 +17,9 @@ public interface StoreService {
 
     StoreDto getStoreInfo(long storeIdx);
 
-    List<ReviewResponse.StoreJounalDto> getStoreExpJournal();
-
-    Store getStore(long storeIdx);
+//    List<ReviewResponse.StoreJounalDto> getStoreExpJournal();
+//
+//    Store getStore(long storeIdx);
 
 
 }

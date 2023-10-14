@@ -13,6 +13,8 @@ public interface ReviewMapper {
     //ReviewResponse.JournalTag
     List<Map<String,Object>> selectList(@Param("storeIdx") Long storeIdx);
 
+    Map<String,Object> findMostLikeReview(@Param("storeIdx") Long storeIdx);
+
 
 
 }

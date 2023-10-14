@@ -14,6 +14,7 @@ import flambus.app.repository.ReviewTagTypeRepository;
 import flambus.app.service.MemberService;
 import flambus.app.service.ReviewService;
 import flambus.app.service.UploadService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
@@ -33,7 +35,6 @@ public class ReviewServiceImpl implements ReviewService {
     private UploadService uploadService;
     @Autowired
     private MemberService memberService;
-
     @Autowired
     private ReviewMapper reviewMapper;
 
@@ -142,16 +143,21 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.countByStoreIdx(storeIdx);
     }
 
+    @Override
+    public List<ReviewTagType> getAllReviewTags() {
+        return reviewTagTypeRepository.findAll();
+    }
 
     /**
-     * @title StoreIdx의 대표 리뷰(탐험일지)
      * @param storeIdx
      * @return
+     * @title 좋아요가 가장 많은 리뷰.
      */
     @Override
-    public long getRepresentReivewIdx(long storeIdx) {
-        return 0;
+    public Map<String,Object> getMostLikeReview(long storeIdx) {
+        return reviewMapper.findMostLikeReview(storeIdx);
     }
+
 
     /**
      * @title 가게 탐험일지 리스트 요청
@@ -204,7 +210,7 @@ public class ReviewServiceImpl implements ReviewService {
 
             //완성된 정보를 Dto에 맵핑
             storeJounalDtos.add(ReviewResponse.StoreJounalDto.builder()
-                    .idx(review.getIdx())
+                    .reviewidx(review.getIdx())
                     .storeIdx(storeIdx)
                     .content(review.getContent())
                     .memberIdx(review.getMemberIdx())
