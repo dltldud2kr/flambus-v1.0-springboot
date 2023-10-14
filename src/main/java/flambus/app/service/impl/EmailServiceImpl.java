@@ -38,6 +38,7 @@ public class EmailServiceImpl implements EmailService {
 
     public static final String ePw = createKey();
 
+    //todo emailHtml 을 파라미터로 빼서 동적으로 사용할 수 있도록 해주세요.
     private MimeMessage createMessage(String to) throws Exception {
         // 이메일 내용에 버튼을 추가한 HTML
         String emailHtml = "<html><body><h1>Welcome to My App</h1>"

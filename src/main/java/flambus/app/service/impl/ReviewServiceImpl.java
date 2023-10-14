@@ -154,8 +154,25 @@ public class ReviewServiceImpl implements ReviewService {
      * @title 좋아요가 가장 많은 리뷰.
      */
     @Override
-    public Map<String,Object> getMostLikeReview(long storeIdx) {
-        return reviewMapper.findMostLikeReview(storeIdx);
+    public Map<String, Object> getMostLikeReview(long storeIdx) {
+        //가장 많이 좋아요를 받은 대표 리뷰정보의 uploadImageList
+        Map<String, Object> mostLikeReview = reviewMapper.findMostLikeReview(storeIdx);
+
+        //해당 리뷰 등록된 이미지 맵핑
+        List uploadList = new ArrayList<>();
+        Map<String,Object> item = new HashMap<>();
+        List<UploadImage> uploadImages = uploadService.getImageByAttachmentType(AttachmentType.REVIEW, (Long) mostLikeReview.get("idx"));
+
+        for (UploadImage v : uploadImages) {
+            item.put("fileName", v.getFileName ());
+            item.put("fileSize", v.getFileSize());
+            item.put("imageUrl", v.getImageUrl());
+            uploadList.add(item);
+        }
+        mostLikeReview.put("uploadImage", uploadList);
+
+
+        return mostLikeReview;
     }
 
 

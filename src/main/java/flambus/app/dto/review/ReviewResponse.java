@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 
+@Builder
+@Data
+@AllArgsConstructor
 public class ReviewResponse {
     @Builder
     @Data
@@ -33,10 +36,9 @@ public class ReviewResponse {
     @AllArgsConstructor
     public static class MostLikeReviewDto {
         private Long reviewIdx;
-        private Long storeIdx;
         private Long likeCount;
         private Map<String,Object> creator;
-        private FileResponse.ReviewImageDto reviewImage;
+        private List<Map<String,Object>> reviewImage;
 
     }
 

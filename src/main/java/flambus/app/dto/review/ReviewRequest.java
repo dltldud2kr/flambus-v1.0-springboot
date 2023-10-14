@@ -9,7 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 
-
+@Builder
+@Data
+@AllArgsConstructor
 public class ReviewRequest {
     @Builder
     @Data
