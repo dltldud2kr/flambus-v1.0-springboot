@@ -195,23 +195,23 @@ public class MemberController {
         return null;
     }
 
-    @PostMapping("/emailConfirm")
-    public emailResponseDto emailConfirm(@RequestParam String email) throws Exception {
+    @PostMapping("/emailSend")
+    public ResponseEntity emailSend(@RequestParam String email) throws Exception {
 
-        String confirm = emailService.sendSimpleMessage(email);
+         emailService.sendEmailVerification(email);
 
-        emailResponseDto result =  emailResponseDto.builder()
-                .email(email)
-                .confirm(confirm)
-                .build();
 
-        return result;
+
+        return ResponseEntity.ok("전송완료");
     }
 
-    @GetMapping("/emailConfirm/Auth")
-    public ResponseEntity emailCheck(@RequestBody emailResponseDto dto) {
+    // 인증한 이메일의 이메일인증여부를 변경 (0:미인증 1:인증 :2가입완료)
+    @GetMapping("/email/Auth")
+    public ResponseEntity emailCheck(@RequestParam(value = "email", required = true) String email) {
 
-        ResponseEntity result = memberService.emailCheck(dto);
+        System.out.println("testtest"
+        );
+        ResponseEntity result = memberService.emailCheck(email);
 
         return result;
     }

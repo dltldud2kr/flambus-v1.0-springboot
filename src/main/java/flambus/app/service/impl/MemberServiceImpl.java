@@ -1,31 +1,33 @@
 package flambus.app.service.impl;
 
 import flambus.app._enum.CustomExceptionCode;
+import flambus.app._enum.EmailAuthStatus;
 import flambus.app.auth.JwtTokenProvider;
-import flambus.app.dto.email.emailResponseDto;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.MemberDto;
 import flambus.app.dto.member.TokenDto;
+import flambus.app.entity.EmailAuth;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.mapper.MemberMapper;
+import flambus.app.repository.EmailAuthRepository;
 import flambus.app.repository.MemberRepository;
 import flambus.app.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -34,6 +36,8 @@ public class MemberServiceImpl implements MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberMapper memberMapper;
+
+    private final EmailAuthRepository emailAuthRepository;
 
     /**
      * 1. 로그인 요청으로 들어온 ID, PWD 기반으로 Authentication 객체 생성
@@ -168,19 +172,51 @@ public class MemberServiceImpl implements MemberService {
     }
 
 
+    /**
+     * @title 이메일 인증 로직
+     * @param email 회원 이메일
+     * @return
+     */
+
     @Override
-    public ResponseEntity emailCheck(emailResponseDto dto) {
+    public ResponseEntity emailCheck(String email) {
 
-        System.out.println("test");
-        System.out.println(dto.getEmail());
-        Member member = memberRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new NoSuchElementException("Cannot find user with userId " + dto.getEmail()));
+        log.info("user email info = " +  email);
 
-        System.out.println(member.getEmail());
+        // Member 테이블에 이미 존재하는 회원
+        Optional<Member> optionalMember =  memberRepository.findByEmail(email);
+        if  (optionalMember.isPresent()){
+            throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
+        }
+        // 인증 링크를 클릭했을 때 유효시간 확인
+        Optional<EmailAuth> optionalEmailAuth = emailAuthRepository.findByEmailAndEmailAuthStatus(email, EmailAuthStatus.UNVERIFIED);
+        EmailAuth auth = optionalEmailAuth.get();
+        if (auth == null) {
+            throw new CustomException(CustomExceptionCode.INVALID_AUTH); // 유효하지않는 인증
+        }
 
-        member.setEmailAuth(true);
 
-        memberRepository.save(member);
+        // 이미 인증이 완료된 회원
+        if (!auth.getEmailAuthStatus().equals(EmailAuthStatus.UNVERIFIED)) {
+            throw new CustomException(CustomExceptionCode.VERIFIED_MEMBER);
+        }
+
+        LocalDateTime creationTime = auth.getCreated();
+        LocalDateTime expirationTime = creationTime.plusMinutes(30); // 30분 유효시간
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(expirationTime)) {
+            auth.setEmailAuthStatus(EmailAuthStatus.EXPIRED);   // 만료
+            emailAuthRepository.save(auth);
+            throw new CustomException(CustomExceptionCode.EXPIRED_AUTH); // 인증시간 만료 예외처리
+        }
+
+
+
+        // 이메일 인증 처리 로직 추가
+
+        auth.setEmailAuthStatus(EmailAuthStatus.VERIFIED);
+        emailAuthRepository.save(auth);
+
         return ResponseEntity.ok().body("인증완료");
     }
 

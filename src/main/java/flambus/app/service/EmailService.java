@@ -1,5 +1,7 @@
 package flambus.app.service;
 
+import org.springframework.http.ResponseEntity;
+
 public interface EmailService {
-    String sendSimpleMessage(String to)throws Exception;
+    void sendEmailVerification(String to)throws Exception;
 }
