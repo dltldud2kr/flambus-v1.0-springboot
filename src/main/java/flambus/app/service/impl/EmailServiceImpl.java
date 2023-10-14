@@ -9,6 +9,8 @@ import flambus.app.repository.EmailAuthRepository;
 import flambus.app.repository.MemberRepository;
 import flambus.app.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -33,12 +35,12 @@ public class EmailServiceImpl implements EmailService {
 
     public static final String ePw = createKey();
 
-    private MimeMessage createMessage(String to)throws Exception{
+    private MimeMessage createMessage(String to) throws Exception {
         // 이메일 내용에 버튼을 추가한 HTML
         String emailHtml = "<html><body><h1>Welcome to My App</h1>"
                 + "<p>Click the button below:</p>"
                 + "<a href='http://localhost:2000/api/v1/emailConfirm/Auth?email="
-                + to +"'" +
+                + to + "'" +
                 " style='background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>Click Me</a>"
                 + "</body></html>";
 
@@ -76,13 +78,14 @@ public class EmailServiceImpl implements EmailService {
         }
         return key.toString();
     }
+
     @Override
-    public void sendEmailVerification(String email)throws Exception {
+    public ResponseEntity<String> sendEmailVerification(String email) throws Exception {
 
         // 이미 존재하는 회원일 시 인증 메일을 보내지 않음. ( member 테이블에서 )
-        Optional<Member> optionalMember =  memberRepository.findByEmail(email);
-        if  (optionalMember.isPresent()){
-            throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isPresent()) {
+            return ResponseEntity.badRequest().body("이미 가입된 회원입니다.");
         }
 
         // 이미 가입된 회원인지 확인 ( emailAuth 테이블에서 )
@@ -90,7 +93,7 @@ public class EmailServiceImpl implements EmailService {
                 .orElse(null);
 
         if (existingAuth != null) {
-            throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
+            return ResponseEntity.badRequest().body("이미 가입된 회원입니다.");
         }
 
         // 인증 완료 상태인 경우 예외 처리
@@ -98,35 +101,31 @@ public class EmailServiceImpl implements EmailService {
                 .orElse(null);
 
         if (existingAuth != null) {
-            throw new CustomException(CustomExceptionCode.VERIFIED_MEMBER);
+            return ResponseEntity.badRequest().body("이메일 인증이 완료된 회원입니다.");
         }
 
-        // 전에 쌓인 인증되지않은 EmailAuth 값들을 전부 "INVALID"로 변경
+        // 전에 쌓인 인증되지 않은 EmailAuth 값들을 전부 "INVALID"로 변경
         List<EmailAuth> emailAuthList = emailAuthRepository.findListByEmailAndEmailAuthStatus(email, EmailAuthStatus.UNVERIFIED);
         for (EmailAuth emailAuth : emailAuthList) {
             emailAuth.setEmailAuthStatus(EmailAuthStatus.INVALID);
         }
         emailAuthRepository.saveAll(emailAuthList);
 
-
         // 이메일 보내는 로직
-
         MimeMessage message = createMessage(email);
-        try{
+        try {
             emailSender.send(message);
-        }catch(MailException es){
-            es.printStackTrace();
-            throw new IllegalArgumentException();
+            //메일 인증 테이블
+            EmailAuth newAuth = EmailAuth.builder()
+                    .email(email)
+                    .emailAuthStatus(EmailAuthStatus.UNVERIFIED)
+                    .created(LocalDateTime.now())
+                    .build();
+            emailAuthRepository.save(newAuth);
+            return ResponseEntity.ok("이메일을 성공적으로 보냈습니다.");
+        } catch (MailException ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
         }
-
-        //메일 인증 테이블
-        EmailAuth newAuth = EmailAuth.builder()
-                .email(email)
-                .emailAuthStatus(EmailAuthStatus.UNVERIFIED)
-                .created(LocalDateTime.now())
-                .build();
-
-        emailAuthRepository.save(newAuth);
-
     }
 }

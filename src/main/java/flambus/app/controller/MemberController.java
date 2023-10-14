@@ -195,25 +195,43 @@ public class MemberController {
         return null;
     }
 
+
+    @Operation(summary = "이메일 인증 요청", description = "" +
+            "이메일 인증 요청" +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+
     @PostMapping("/emailSend")
     public ResponseEntity emailSend(@RequestParam String email) throws Exception {
 
-         emailService.sendEmailVerification(email);
 
-
-
-        return ResponseEntity.ok("전송완료");
+        return ResponseEntity.ok(emailService.sendEmailVerification(email));
     }
+
+
+    @Operation(summary = "이메일 인증 여부", description = "" +
+            "이메일 인증 여부." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
 
     // 인증한 이메일의 이메일인증여부를 변경 (0:미인증 1:인증 :2가입완료)
     @GetMapping("/email/Auth")
     public ResponseEntity emailCheck(@RequestParam(value = "email", required = true) String email) {
 
-        System.out.println("testtest"
-        );
-        ResponseEntity result = memberService.emailCheck(email);
 
-        return result;
+        return ResponseEntity.ok(memberService.emailCheck(email));
     }
 
 

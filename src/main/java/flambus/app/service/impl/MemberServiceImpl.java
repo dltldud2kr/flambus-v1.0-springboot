@@ -178,6 +178,7 @@ public class MemberServiceImpl implements MemberService {
      * @return
      */
 
+    @Transactional
     @Override
     public ResponseEntity emailCheck(String email) {
 
