@@ -174,51 +174,52 @@ public class MemberServiceImpl implements MemberService {
 
     /**
      * @title 이메일 인증 로직
-     * @param email 회원 이메일
+     * @param email 회원 이메일x`
      * @return
      */
+
+    //1.  member 테이블에 이미 있는 회원인지 확인 .   있으면 duplicated_member 예외처리
+    //2.  이미 인증된 상태 (VERIFIED) 인지 확인. VERIFIED상태라면 VERIFIED_MEMBER 예외처리
+    //3. UNVERIFIED 상태를 찾음. 이 때 유효시간 30분이 지났으면 EmailAuthStatus를 EXPIRED 로 변경 후 EXPIRED_AUTH 예외처리.
+    // 30분이 안 지났으면 EmailAuthStatus를 VERIFIED 상태로 변경해줌.
 
     @Transactional
     @Override
     public ResponseEntity emailCheck(String email) {
+        log.info("user email info = " + email);
 
-        log.info("user email info = " +  email);
-
-        // Member 테이블에 이미 존재하는 회원
-        Optional<Member> optionalMember =  memberRepository.findByEmail(email);
-        if  (optionalMember.isPresent()){
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isPresent()) {
             throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
         }
-        // 인증 링크를 클릭했을 때 유효시간 확인
-        Optional<EmailAuth> optionalEmailAuth = emailAuthRepository.findByEmailAndEmailAuthStatus(email, EmailAuthStatus.UNVERIFIED);
-        EmailAuth auth = optionalEmailAuth.get();
-        if (auth == null) {
-            throw new CustomException(CustomExceptionCode.INVALID_AUTH); // 유효하지않는 인증
+
+        List<EmailAuth> emailAuthList = emailAuthRepository.findByEmail(email);
+
+        if (emailAuthList.isEmpty()) {
+            throw new CustomException(CustomExceptionCode.INVALID_AUTH);
         }
 
+        for (EmailAuth auth : emailAuthList) {
+            if (auth.getEmailAuthStatus() == EmailAuthStatus.VERIFIED) {
+                throw new CustomException(CustomExceptionCode.VERIFIED_MEMBER);
+            }
 
-        // 이미 인증이 완료된 회원
-        if (!auth.getEmailAuthStatus().equals(EmailAuthStatus.UNVERIFIED)) {
-            throw new CustomException(CustomExceptionCode.VERIFIED_MEMBER);
+            else if (auth.getEmailAuthStatus() == EmailAuthStatus.UNVERIFIED) {
+                LocalDateTime creationTime = auth.getCreated();
+                LocalDateTime expirationTime = creationTime.plusMinutes(30); // 30분 유효시간
+                LocalDateTime now = LocalDateTime.now();
+
+                if (now.isAfter(expirationTime)) {
+                    auth.setEmailAuthStatus(EmailAuthStatus.EXPIRED); // 만료
+                    emailAuthRepository.save(auth);
+                    throw new CustomException(CustomExceptionCode.EXPIRED_AUTH);
+                } else {
+                    auth.setEmailAuthStatus(EmailAuthStatus.VERIFIED);
+                }
+            }
+
         }
-
-        LocalDateTime creationTime = auth.getCreated();
-        LocalDateTime expirationTime = creationTime.plusMinutes(30); // 30분 유효시간
-        LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(expirationTime)) {
-            auth.setEmailAuthStatus(EmailAuthStatus.EXPIRED);   // 만료
-            emailAuthRepository.save(auth);
-            throw new CustomException(CustomExceptionCode.EXPIRED_AUTH); // 인증시간 만료 예외처리
-        }
-
-
-
-        // 이메일 인증 처리 로직 추가
-
-        auth.setEmailAuthStatus(EmailAuthStatus.VERIFIED);
-        emailAuthRepository.save(auth);
-
+        emailAuthRepository.saveAll(emailAuthList);
         return ResponseEntity.ok().body("인증완료");
     }
-
 }

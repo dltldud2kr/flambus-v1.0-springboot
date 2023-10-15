@@ -1,12 +1,9 @@
 package flambus.app.dto.review;
 
 
-import flambus.app.dto.upload.FileResponse;
-import jdk.vm.ci.meta.Local;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -3,7 +3,6 @@ package flambus.app.controller;
 
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
-import flambus.app.dto.email.emailResponseDto;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.LoginRequestDto;
 import flambus.app.dto.member.MemberDto;
@@ -21,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -224,12 +224,27 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
     })
 
-    // 인증한 이메일의 이메일인증여부를 변경 (0:미인증 1:인증 :2가입완료)
+    // 인증한 이메일의 이메일인증여부를 변경
     @GetMapping("/email/Auth")
-    public ResponseEntity emailCheck(@RequestParam(value = "email", required = true) String email) {
-        return ResponseEntity.ok(memberService.emailCheck(email));
-    }
-
+    public ResultDTO<Object> emailCheck(@RequestParam(value = "email", required = true) String email) {
+                try{
+            memberService.emailCheck(email);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.",null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false,e.getCustomErrorCode().getStatusCode(),e.getDetailMessage(),null);
 
 
 }
+
+        }
+
+    }
+
+//        try{
+//            memberService.emailCheck(email);
+//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.",null);
+//        } catch (CustomException e) {
+//            return ResultDTO.of(false,e.getCustomErrorCode().getStatusCode(),e.getDetailMessage(),null);
+//
+//
+//}
