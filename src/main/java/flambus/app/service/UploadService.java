@@ -169,8 +169,9 @@ public class UploadService {
     public void removeDatabaseByReviewIdx(long mappedIdx) {
         try {
             uploadRepository.deleteByMappedId(mappedIdx);
-        } catch(Exception e) {
+        } catch(CustomException e) {
             System.out.println("Exception removeDatabaseByReviewIdx : " + e);
+            throw new CustomException(CustomExceptionCode.SERVER_ERROR);
         }
     }
 

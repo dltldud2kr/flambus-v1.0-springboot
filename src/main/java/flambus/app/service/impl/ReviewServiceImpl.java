@@ -16,6 +16,7 @@ import flambus.app.service.ReviewService;
 import flambus.app.service.UploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -101,18 +102,22 @@ public class ReviewServiceImpl implements ReviewService {
 
             int removeCount = 0;
             //업로드된 이미지가 잇는 경우
-            if (imageByAttachmentType.size() > 0) {
-                for (UploadImage file : imageByAttachmentType) {
-                    // 문자열에서 ".com/" 다음의 정보를 추출
-                    int startIndex = file.getImageUrl().indexOf(".com/") + 5;
-                    String result = file.getImageUrl().substring(startIndex);
-                    removeTarget[removeCount] = result;
-                    removeCount++;
+            try {
+                if (imageByAttachmentType.size() > 0) {
+                    for (UploadImage file : imageByAttachmentType) {
+                        // 문자열에서 ".com/" 다음의 정보를 추출
+                        int startIndex = file.getImageUrl().indexOf(".com/") + 5;
+                        String result = file.getImageUrl().substring(startIndex);
+                        removeTarget[removeCount] = result;
+                        removeCount++;
+                    }
+                    //등록되어있는 파일 정보 삭제 요청.
+                    uploadService.removeS3Files(removeTarget);
+                    //데이터베이스에 맵핑되어있는 정보삭제
+                    uploadService.removeDatabaseByReviewIdx(request.getReviewIdx());
                 }
-                //등록되어있는 파일 정보 삭제 요청.
-                uploadService.removeS3Files(removeTarget);
-                //데이터베이스에 맵핑되어있는 정보삭제
-                uploadService.removeDatabaseByReviewIdx(request.getReviewIdx());
+            } catch (CustomException e) {
+                throw new CustomException(CustomExceptionCode.SERVER_ERROR);
             }
 
             //새롭게 요청온 업로드 이미지를  버킷에 업로드함.
@@ -131,6 +136,42 @@ public class ReviewServiceImpl implements ReviewService {
             reviewRepository.save(createdReview);
         } catch (CustomException e) {
             System.err.println("modifyJournal Exception : " + e);
+        }
+    }
+
+    @Override
+    public void removeJournal(long reviewIdx) {
+        try {
+            reviewRepository.deleteById(reviewIdx);
+
+            //유효성 검증에 모두 통과했다면 버킷에 업로드되어있는 리뷰 파일을 모두 삭제합니다.
+            //해당 리뷰에 업로드 등록되어있는 이미지를 검색합니다.
+            List<UploadImage> imageByAttachmentType = uploadService.getImageByAttachmentType(AttachmentType.REVIEW, reviewIdx);
+            String[] removeTarget = new String[imageByAttachmentType.size() + 1];
+
+            int removeCount = 0;
+            //업로드된 이미지가 잇는 경우
+            try {
+                if (imageByAttachmentType.size() > 0) {
+                    for (UploadImage file : imageByAttachmentType) {
+                        // 문자열에서 ".com/" 다음의 정보를 추출
+                        int startIndex = file.getImageUrl().indexOf(".com/") + 5;
+                        String result = file.getImageUrl().substring(startIndex);
+                        removeTarget[removeCount] = result;
+                        removeCount++;
+                    }
+                    //등록되어있는 파일 정보 삭제 요청.
+                    uploadService.removeS3Files(removeTarget);
+                    //데이터베이스에 맵핑되어있는 정보삭제
+                    uploadService.removeDatabaseByReviewIdx(reviewIdx);
+                }
+            } catch (CustomException e) {
+                throw new CustomException(CustomExceptionCode.SERVER_ERROR);
+            }
+        } catch (CustomException e) {
+            throw new CustomException(CustomExceptionCode.SERVER_ERROR);
+        } catch (EmptyResultDataAccessException e) {
+            throw new CustomException(CustomExceptionCode.NOT_FOUND);
         }
     }
 

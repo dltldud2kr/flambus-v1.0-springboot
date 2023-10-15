@@ -119,19 +119,25 @@ public class ReviewController {
     }
 
 
-//    @Operation(summary = "작성한 탐험일지 삭제", description = "" +
-//            "\n### HTTP STATUS 에 따른 조회 결과" +
-//            "\n- 200: 서버요청 정상 성공 "+
-//            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-//            "\n### Result Code 에 따른 요청 결과" +
-//            "\n- ")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
-//    })
-//    @DeleteMapping
-//    public ResultDTO removeJournal() {
-//        return null;
-//    }
+    @Operation(summary = "작성한 탐험일지 삭제", description = "" +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+    @DeleteMapping
+    public ResultDTO removeJournal(@RequestParam long journalIdx) {
+        try {
+            reviewService.removeJournal(journalIdx);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(),ApiResponseCode.SUCCESS.getMessage(), null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+
+    }
 
 
 //    @Operation(summary = "다른 사용자 탐험일지 좋아요", description = "이미 좋아요 되어있는 경우 좋아요 취소" +

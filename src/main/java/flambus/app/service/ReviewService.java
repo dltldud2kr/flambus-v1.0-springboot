@@ -17,6 +17,7 @@ public interface ReviewService {
     void createJournal(ReviewRequest.CreateReviewRequestDto request) throws IOException;
 
     void updateJournal(ReviewRequest.ModifyReviewRequestDto request);
+    void removeJournal(long storeIdx);
 
     long getTotalReviewCount(long storeIdx);
     List<ReviewTagType> getAllReviewTags();
@@ -26,6 +27,7 @@ public interface ReviewService {
     List<ReviewResponse.StoreJounalDto> getStoreJounalList(Long storeIdx, int pageNum, int pageSize);
 
     ReviewTagType getReivewTypeByIdx(long idx);
+
 
 
 
