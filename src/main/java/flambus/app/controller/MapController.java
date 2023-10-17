@@ -1,0 +1,53 @@
+package flambus.app.controller;
+
+
+import flambus.app._enum.ApiResponseCode;
+import flambus.app.dto.ResultDTO;
+import flambus.app.dto.member.JoinRequestDto;
+import flambus.app.dto.member.LoginRequestDto;
+import flambus.app.dto.member.MemberDto;
+import flambus.app.dto.member.TokenDto;
+import flambus.app.entity.Member;
+import flambus.app.exception.CustomException;
+import flambus.app.service.EmailService;
+import flambus.app.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+
+@Slf4j
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/map")
+@Tag(name = "지도 관련 요청 API", description = "지도와 관련된 API 입니다.")
+public class MapController {
+
+    @Operation(summary = "지도 내 맛집정보 요청", description = "" +
+            "사용자가 요청한 좌표로 서버에 등록된 가게 정보를 반환합니다." +
+            "\n### HTTP STATUS 에 따른 요청 결과" +
+            "\n- 200: 서버요청 정상 성공" +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생했습니다." +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- " +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공"),
+    })
+    @GetMapping("/store")
+    public ResultDTO<TokenDto> getStoreByMaps() {
+        try {
+
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "Success", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
+}

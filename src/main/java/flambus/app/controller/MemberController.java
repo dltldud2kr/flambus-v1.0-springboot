@@ -225,20 +225,16 @@ public class MemberController {
     })
 
     // 인증한 이메일의 이메일인증여부를 변경
-    @GetMapping("/email/Auth")
+    @GetMapping("/email/auth")
     public ResultDTO<Object> emailCheck(@RequestParam(value = "email", required = true) String email) {
-                try{
+        try {
             memberService.emailCheck(email);
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.",null);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
         } catch (CustomException e) {
-            return ResultDTO.of(false,e.getCustomErrorCode().getStatusCode(),e.getDetailMessage(),null);
-
-
-}
-
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
-
     }
+}
 
 //        try{
 //            memberService.emailCheck(email);
