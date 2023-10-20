@@ -55,7 +55,7 @@ public class ReviewController {
     }
 
 
-    @Operation(summary = "신규 탐험일지 작성", description = "리뷰 작성시 보유 도토리 가 1개 추가로 증가합니다." +
+    @Operation(summary = "신규 탐험일지 작성", description = "리뷰 작성시 보유 도토리 가 1개 추가로 증가합니다.\n파일 업로드시 파일객체(file Object) 보내시면 됩니다. 버킷 적재 후 버킷 url 링크로 반환합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
@@ -77,7 +77,7 @@ public class ReviewController {
     }
 
 
-    @Operation(summary = "작성한 탐험일지 수정", description = "리뷰 작성과 동일한 로직입니다. 기존 작성된 리뷰가 삭제되고 해당 리뷰 IDX로 그대로 덮어집니다." +
+    @Operation(summary = "작성한 탐험일지 수정", description = "리뷰 작성과 동일한 로직입니다. 기존 작성된 리뷰가 삭제되고 해당 리뷰 idx에 그대로 덮어집니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
@@ -119,7 +119,7 @@ public class ReviewController {
     }
 
 
-    @Operation(summary = "작성한 탐험일지 삭제", description = "" +
+    @Operation(summary = "작성한 탐험일지 삭제", description = "도토리는 회수하지는 않습니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +

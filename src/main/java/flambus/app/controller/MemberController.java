@@ -17,10 +17,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -208,8 +207,13 @@ public class MemberController {
     })
 
     @PostMapping("/emailSend")
-    public ResponseEntity emailSend(@RequestParam String email) throws Exception {
-        return ResponseEntity.ok(emailService.sendEmailVerification(email));
+    public ResultDTO<Object> emailSend(@RequestParam String email) throws Exception {
+        try {
+            emailService.sendEmailVerification(email);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "메일 발송 중 문제가 발생했습니다.", null);
+        }
     }
 
 

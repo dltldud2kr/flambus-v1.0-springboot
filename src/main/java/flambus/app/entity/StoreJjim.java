@@ -24,8 +24,8 @@ import java.time.LocalDateTime;
 public class StoreJjim {
     @Id
     @GeneratedValue
-    private Long idx;//좋아요 idx
-    private Long storeIdx; //스토어 IDX
+    private Long idx;//pk
+    private Long storeIdx; //스토어 IDX , storeidx랑 외래키 연결해야함.
     private Long memberIdx; //멤버
     private LocalDateTime created; //찜 한 날짜
 
