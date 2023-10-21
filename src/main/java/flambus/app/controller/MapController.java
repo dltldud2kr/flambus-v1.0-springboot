@@ -3,6 +3,7 @@ package flambus.app.controller;
 
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
+import flambus.app.dto.map.MapResponse;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.LoginRequestDto;
 import flambus.app.dto.member.MemberDto;
@@ -10,17 +11,21 @@ import flambus.app.dto.member.TokenDto;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.service.EmailService;
+import flambus.app.service.MapService;
 import flambus.app.service.MemberService;
+import flambus.app.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -29,6 +34,9 @@ import java.util.List;
 @RequestMapping("/api/v1/map")
 @Tag(name = "지도 관련 요청 API", description = "지도와 관련된 API 입니다.")
 public class MapController {
+
+    @Autowired
+    private MapService mapService;
 
     @Operation(summary = "지도 내 맛집정보 요청", description = "" +
             "사용자가 요청한 좌표로 서버에 등록된 가게 정보를 반환합니다." +
@@ -42,10 +50,10 @@ public class MapController {
             @ApiResponse(responseCode = "200", description = "요청 성공"),
     })
     @GetMapping("/store")
-    public ResultDTO<TokenDto> getStoreByMaps() {
+    public ResultDTO<List<MapResponse.MapStoreMarker>> getStoreByMaps() {
         try {
-
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "Success", null);
+            List<MapResponse.MapStoreMarker> markerDto = mapService.getStoreInfoByMap();
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "Success", markerDto);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }

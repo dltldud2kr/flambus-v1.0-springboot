@@ -82,15 +82,15 @@ public class MemberController {
     }
 
 
-        @Operation(summary = "회원가입 요청", description = "" +
-                "임시 회원가입을 요청합니다." +
-                "회원가입 화면 디자인 완료시 예외처리 및 추가 개발 예정입니다." +
-                "테스트 용도로 확인만 해주세요." +
-                "\n### HTTP STATUS 에 따른 조회 결과" +
-                "\n- 201: 회원가입 성공 "+
-                "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-                "\n### Result Code 에 따른 요청 결과" +
-                "\n- DUPLICATED: 동일한 이메일이 존재합니다."
+    @Operation(summary = "회원가입 요청", description = "" +
+            "임시 회원가입을 요청합니다." +
+            "회원가입 화면 디자인 완료시 예외처리 및 추가 개발 예정입니다." +
+            "테스트 용도로 확인만 해주세요." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 201: 회원가입 성공 " +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- DUPLICATED: 동일한 이메일이 존재합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
@@ -107,7 +107,7 @@ public class MemberController {
     @Operation(summary = "사용자 정보 조회", description = "" +
             "사용자 정보를 요청합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- ")
@@ -119,7 +119,7 @@ public class MemberController {
     public ResultDTO<MemberDto> member(@RequestParam("idx") long memberIdx) {
         Member member = memberService.getMember(memberIdx);
 
-        MemberDto memberDto =  MemberDto.builder()
+        MemberDto memberDto = MemberDto.builder()
                 .idx(member.getIdx())
                 .acornsCount(member.getAcornsCount())
                 .canLimitCount(member.getCanLimitCount())
@@ -139,14 +139,14 @@ public class MemberController {
                 .useGpsAgreeDate(member.getUseGpsAgreeDate())
                 .build();
 
-        return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.",memberDto);
+        return ResultDTO.of(member != null, ApiResponseCode.SUCCESS.getCode(), member != null ? "성공" : "해당 사용자를 찾을 수 없습니다.", memberDto);
     }
 
 
     @Operation(summary = "가입된 모든 사용자 정보 조회", description = "" +
             "사용자 정보를 요청합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- ")
@@ -165,7 +165,7 @@ public class MemberController {
     @Operation(summary = "사용자 정보 수정", description = "" +
             "사용자 정보를 수정합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- ")
@@ -181,7 +181,7 @@ public class MemberController {
     @Operation(summary = "회원 탈퇴 요청", description = "" +
             "사용자 회원 탈퇴 요청." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- ")
@@ -198,7 +198,7 @@ public class MemberController {
     @Operation(summary = "이메일 인증 요청", description = "" +
             "이메일 인증 요청" +
             "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- ")
@@ -220,7 +220,7 @@ public class MemberController {
     @Operation(summary = "이메일 인증 여부", description = "" +
             "이메일 인증 여부." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- ")

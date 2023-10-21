@@ -1,38 +1,49 @@
 package flambus.app.service.impl;
 
-import flambus.app._enum.CustomExceptionCode;
-import flambus.app._enum.EmailAuthStatus;
-import flambus.app.auth.JwtTokenProvider;
-import flambus.app.dto.member.JoinRequestDto;
-import flambus.app.dto.member.MemberDto;
-import flambus.app.dto.member.TokenDto;
-import flambus.app.entity.EmailAuth;
-import flambus.app.entity.Member;
-import flambus.app.exception.CustomException;
-import flambus.app.mapper.MemberMapper;
-import flambus.app.repository.EmailAuthRepository;
-import flambus.app.repository.MemberRepository;
+import flambus.app.dto.map.MapResponse;
+import flambus.app.mapper.StoreMapper;
+import flambus.app.repository.StoreRepository;
 import flambus.app.service.MapService;
-import flambus.app.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MapServiceImpl implements MapService {
+    private final StoreRepository storeRepository;
+    private final StoreMapper storeMapper;
 
+    /**
+     * @return
+     * @title 맵에 표시할 마커(가게) 정보를 반환합x니다.
+     */
+    @Override
+    public List<MapResponse.MapStoreMarker> getStoreInfoByMap() {
+        List<Map<String, Object>> marker = storeMapper.getMapStoreMakrer();
 
+        List<MapResponse.MapStoreMarker> dto = new ArrayList();
+
+        for (Map<String, Object> data : marker) {
+
+            dto.add(MapResponse.MapStoreMarker.builder()
+                    .storeIdx((Long) data.get("idx"))
+                    .location(MapResponse.Location.builder()
+                            .lng((Float) data.get("latitude"))
+                            .lat((Float) data.get("logitude"))
+                            .build())
+                    .journalCount((Long) data.get("review_count"))
+                    .build());
+        }
+
+        return dto;
+
+    }
 }
