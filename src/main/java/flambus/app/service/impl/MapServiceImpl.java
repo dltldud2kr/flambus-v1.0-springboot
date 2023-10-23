@@ -32,17 +32,16 @@ public class MapServiceImpl implements MapService {
         List<MapResponse.MapStoreMarker> dto = new ArrayList();
 
         for (Map<String, Object> data : marker) {
-
             dto.add(MapResponse.MapStoreMarker.builder()
                     .storeIdx((Long) data.get("idx"))
+                    .storeName((String) data.get("name"))
                     .location(MapResponse.Location.builder()
-                            .lng((Float) data.get("latitude"))
-                            .lat((Float) data.get("logitude"))
+                            .lng((Double) data.get("latitude"))
+                            .lat((Double) data.get("longitude"))
                             .build())
                     .journalCount((Long) data.get("review_count"))
                     .build());
         }
-
         return dto;
 
     }

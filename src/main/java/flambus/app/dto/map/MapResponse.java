@@ -19,6 +19,7 @@ public class MapResponse {
     @AllArgsConstructor
     public static class MapStoreMarker {
         private long storeIdx;
+        private String storeName;
         private Location location;
         private long journalCount; //리뷰개수
 
@@ -27,7 +28,7 @@ public class MapResponse {
     @Data
     @AllArgsConstructor
     public static class Location {
-        private float lat;
-        private float lng;
+        private Double lat;
+        private Double lng;
     }
 }
