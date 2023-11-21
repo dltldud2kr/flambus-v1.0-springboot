@@ -25,6 +25,7 @@ import java.util.*;
 @RequestMapping("/test/api/v1")
 @RestController
 @Tag(name = "업로드 관련", description = "업로드 관련(리뷰이미지,프로필이미지 등 관련 API)")
+@CrossOrigin(origins = "*", exposedHeaders = {"Content-Disposition"}, allowedHeaders = "*")
 public class UploadController {
     private final UploadService uploadService;
 

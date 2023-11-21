@@ -33,12 +33,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/map")
 @Tag(name = "지도 관련 요청 API", description = "지도와 관련된 API 입니다.")
+@CrossOrigin(origins = "*", exposedHeaders = {"Content-Disposition"}, allowedHeaders = "*")
 public class MapController {
 
     @Autowired
     private MapService mapService;
 
-    @Operation(summary = "지도 내 맛집정보 요청", description = "" +
+    @Operation(summary = "지도 내 맛집(마커)정보 요청", description = "" +
             "사용자가 요청한 좌표로 서버에 등록된 가게 정보를 반환합니다." +
             "\n### HTTP STATUS 에 따른 요청 결과" +
             "\n- 200: 서버요청 정상 성공" +

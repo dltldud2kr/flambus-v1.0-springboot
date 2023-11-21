@@ -24,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/store/journal")
 @Tag(name = "가게 일지 관련 정보", description = "")
+@CrossOrigin(origins = "*", exposedHeaders = {"Content-Disposition"}, allowedHeaders = "*")
 public class ReviewController {
 
     @Autowired

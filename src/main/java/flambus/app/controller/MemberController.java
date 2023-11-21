@@ -28,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
 @Tag(name = "회원 관련 API", description = "회원 도메인 관련 API 입니다.")
+@CrossOrigin(origins = "*", exposedHeaders = {"Content-Disposition"}, allowedHeaders = "*")
 public class MemberController {
     private final MemberService memberService;
     private final EmailService emailService;

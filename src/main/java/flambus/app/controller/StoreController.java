@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/store")
 @Tag(name = "스토어,가게 정보 관련 API", description = "")
+@CrossOrigin(origins = "*", exposedHeaders = {"Content-Disposition"}, allowedHeaders = "*")
 public class StoreController {
 
     private final StoreService storeService;
