@@ -239,7 +239,56 @@ public class MemberController {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
+
+
+    @Operation(summary = "개인정보 수집 마케팅 광고 활용여부 동의", description = "" +
+            "개인정보 수집 마케팅 광고 활용여부 동의" +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 " +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+
+    @PostMapping("/agreement/privacy")
+    public ResultDTO<Object> marketingAgreement(@RequestParam String memberIdx) throws Exception {
+        try {
+//            emailService.sendEmailVerification(email);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "개인정보 수집, 마케팅 광고 동의가 완료되었습니다.", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "오류 발생", null);
+        }
+    }
+
+
+    @Operation(summary = "GPS 수집 약관 동의", description = "" +
+            "GPS 수집 약관 동의" +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 " +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+
+    @PostMapping("/agreement/gps")
+    public ResultDTO<Object> gpsAgreement(@RequestParam String memberIdx) throws Exception {
+        try {
+//            emailService.sendEmailVerification(email);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "GPS 수집 및 사용관련 동의가 완료되었습니다.", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "오류 발생", null);
+        }
+    }
+
+
+
 }
+
+
 
 //        try{
 //            memberService.emailCheck(email);
