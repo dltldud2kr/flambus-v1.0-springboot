@@ -81,7 +81,26 @@ public class MemberController {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
-
+    @Operation(summary = "가입된 이메일 여부 확인", description = "" +
+            "가입된 이메일 여부를 확인합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 조회 성공 " +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- DUPLICATED: 동일한 이메일이 존재합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+    })
+    @GetMapping("/auth/checkEmail")
+    public ResultDTO isAleadyEmail(@RequestParam("email") String email) {
+        try {
+            Member member = memberService.getMember(email);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "가입여부 조회 성공 (data : false(가입))", member == null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
 
     @Operation(summary = "회원가입 요청", description = "" +
             "임시 회원가입을 요청합니다." +

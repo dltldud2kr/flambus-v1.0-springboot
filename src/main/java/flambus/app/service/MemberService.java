@@ -23,6 +23,8 @@ public interface MemberService {
 
     Member getMember(long memberIdx);
 
+    Member isAlreadyEmail(String email);
+
     List<MemberDto> getAllMembers();
 
     boolean isAdmin(long memberIdx);

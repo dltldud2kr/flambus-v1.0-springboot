@@ -92,7 +92,7 @@ public class MemberServiceImpl implements MemberService {
                     .serviceAgreeDate(LocalDateTime.now())
                     .termsAgree(false)
                     .profileImageUrl("test")                // 추가 (널값허용안받음)
-                    .userName("test")                       // 추가 (널값허용안받음)
+                    .userName(request.getNickName())        // 추가 (널값허용안받음)
                     .withdrawal(false)                      // 추가 (널값허용안받음)
                     .withdrawalDate(LocalDateTime.now())    //널값허용왜안됨?
                     .subscriptionDate(LocalDateTime.now())  // 추가
@@ -123,6 +123,11 @@ public class MemberServiceImpl implements MemberService {
         Optional<Member> member = memberRepository.findById(memberIdx);
         // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
         return member.orElse(null);
+    }
+
+    @Override
+    public Member isAlreadyEmail(String email) {
+        return getMember(email);
     }
 
     //가입된 사용자 정보를 조회

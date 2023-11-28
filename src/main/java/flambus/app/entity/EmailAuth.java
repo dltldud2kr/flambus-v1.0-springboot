@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Data
 public class EmailAuth {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long memberIdx;
     private LocalDateTime created;

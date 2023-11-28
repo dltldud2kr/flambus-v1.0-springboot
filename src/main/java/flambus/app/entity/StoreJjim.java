@@ -6,10 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
@@ -23,7 +20,7 @@ import java.time.LocalDateTime;
 @Table(name = "store_jjim")
 public class StoreJjim {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idx;//pk
     private Long storeIdx; //스토어 IDX , storeidx랑 외래키 연결해야함.
     private Long memberIdx; //멤버

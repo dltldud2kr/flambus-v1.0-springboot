@@ -5,10 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 @Table(name = "review_tag")
 public class ReviewTag {
-    @Id  @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idx;//pk
     private Long storeIdx; //리뷰가 달린 가게 idx
     private Long reviewIdx; //해당 리뷰 idx

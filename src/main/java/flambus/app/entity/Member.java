@@ -24,12 +24,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class Member implements UserDetails {
 
     @Id
-    @Column(name = "idx")
     @GeneratedValue
     private Long idx;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
-    @Column(unique = true,nullable = false)
+    @Column(nullable = false)
     private String userName;
     @Column(nullable = false)
     private String password;
