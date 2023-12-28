@@ -51,7 +51,9 @@ public class MemberServiceImpl implements MemberService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
         TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
+
         return tokenDto;
     }
 
@@ -185,20 +187,32 @@ public class MemberServiceImpl implements MemberService {
 
     //1.  member 테이블에 이미 있는 회원인지 확인 .   있으면 duplicated_member 예외처리
     //2.  이미 인증된 상태 (VERIFIED) 인지 확인. VERIFIED상태라면 VERIFIED_MEMBER 예외처리
-    //3. UNVERIFIED 상태를 찾음. 이 때 유효시간 30분이 지났으면 EmailAuthStatus를 EXPIRED 로 변경 후 EXPIRED_AUTH 예외처리.
+    //3. UNVERIFIED 상태를 찾음. 이 때 유효시간 3분이 지났으면 EmailAuthStatus를 EXPIRED 로 변경 후 EXPIRED_AUTH 예외처리.
     // 30분이 안 지났으면 EmailAuthStatus를 VERIFIED 상태로 변경해줌.
+
+    /*
+    1. EXPIRED
+    2. VERIFIED
+    3. UNVERIFIED
+    4. INVALID
+     */
 
     @Transactional
     @Override
-    public ResponseEntity emailCheck(String email) {
+    public ResponseEntity emailCheck(String email, String verifCode){
         log.info("user email info = " + email);
+        log.info("user verifcode = " + verifCode);
 
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
+
+        //이미 존재하는 회원
         if (optionalMember.isPresent()) {
             throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
         }
 
+
         List<EmailAuth> emailAuthList = emailAuthRepository.findByEmail(email);
+
 
         if (emailAuthList.isEmpty()) {
             throw new CustomException(CustomExceptionCode.INVALID_AUTH);
@@ -211,7 +225,7 @@ public class MemberServiceImpl implements MemberService {
 
             else if (auth.getEmailAuthStatus() == EmailAuthStatus.UNVERIFIED) {
                 LocalDateTime creationTime = auth.getCreated();
-                LocalDateTime expirationTime = creationTime.plusMinutes(30); // 30분 유효시간
+                LocalDateTime expirationTime = creationTime.plusMinutes(3); // 3분 유효시간
                 LocalDateTime now = LocalDateTime.now();
 
                 if (now.isAfter(expirationTime)) {
@@ -221,6 +235,9 @@ public class MemberServiceImpl implements MemberService {
                 } else {
                     auth.setEmailAuthStatus(EmailAuthStatus.VERIFIED);
                 }
+            }
+            else {
+                throw new CustomException(CustomExceptionCode.EXPIRED_AUTH);
             }
 
         }

@@ -70,6 +70,7 @@ public class JwtTokenProvider {
 
         //해당 사용자 정보의 리플래쉬 토큰을 업데이트 해줌.
         Optional<Member> byMember = memberRepository.findByEmail(authentication.getName());
+        log.info(authentication.getName());
         memberRepository.updateRefreshToken(byMember.get().getEmail(),refreshToken);
 
         //accesstoken 받았어, -> 이동

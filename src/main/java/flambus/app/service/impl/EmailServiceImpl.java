@@ -9,6 +9,7 @@ import flambus.app.repository.EmailAuthRepository;
 import flambus.app.repository.MemberRepository;
 import flambus.app.service.EmailService;
 import flambus.app.service.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
     @Autowired
@@ -36,23 +38,33 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private EmailAuthRepository emailAuthRepository;
 
-    public static final String ePw = createKey();
+    public static String ePw = createKey();
 
     //todo emailHtml 을 파라미터로 빼서 동적으로 사용할 수 있도록 해주세요.
     private MimeMessage createMessage(String to) throws Exception {
+
+        ePw = createKey();
         // 이메일 내용에 버튼을 추가한 HTML
-        String emailHtml = "<html><body><h1>Welcome to My App</h1>"
-                + "<p>Click the button below:</p>"
-                + "<a href='http://localhost:2000/api/v1/emailConfirm/Auth?email="
-                + to + "'" +
-                " style='background-color: #008CBA; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>Click Me</a>"
-                + "</body></html>";
+        String msgg="";
+        msgg+= "<div style='margin:20px;'>";
+        msgg+= "<h1> 안녕하세요 플램버스입니다. </h1>";
+        msgg+= "<br>";
+        msgg+= "<p>아래 코드를 복사해 입력해주세요<p>";
+        msgg+= "<br>";
+        msgg+= "<p>감사합니다.<p>";
+        msgg+= "<br>";
+        msgg+= "<div align='center' style='border:1px solid black; font-family:verdana';>";
+        msgg+= "<h3 style='color:blue;'>회원가입 인증 코드입니다.</h3>";
+        msgg+= "<div style='font-size:130%'>";
+        msgg+= "CODE : <strong>";
+        msgg+= ePw+"</strong><div><br/> ";
+        msgg+= "</div>";
 
         MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(RecipientType.TO, to);
         message.setSubject("이메일 인증 테스트");
-        message.setText(emailHtml, "utf-8", "html");
+        message.setText(msgg, "utf-8", "html");
         message.setFrom(new InternetAddress("dltldud2kr@gmail.com", "leesiyoung"));
 
         return message;
@@ -95,7 +107,25 @@ public class EmailServiceImpl implements EmailService {
         //todo n분동안 n개이상의 메일을 전송한 사람이라면 특정 시간동안 잠시 메일발송을 중단시키거나 하는 처리
 
 
+
+        //전에 쌓인 인증되지 않은 EmailAuth 값들을 전부 "INVALID"로 변경
+        //todo 이부분은 JPA로 find 후 save 하는것보다 myBatis 에서 update 1번 날려주는게 더 효율적일거같음.
+        //todo MemberMapper에다가 작성하면 될듯함.
+        List<EmailAuth> emailAuthList = emailAuthRepository.findListByEmailAndEmailAuthStatus(email, EmailAuthStatus.UNVERIFIED);
+
+        if (!emailAuthList.isEmpty()){
+            log.info("email있음");
+
+            for (EmailAuth emailAuth : emailAuthList) {
+                log.info("이메일 invalid로 교체 ");
+                emailAuth.setEmailAuthStatus(EmailAuthStatus.INVALID);
+            }
+            emailAuthRepository.saveAll(emailAuthList);
+        }
+
+
         // 이메일 보내는 로직
+        log.info("이메일 메세지 생성 전 ");
         MimeMessage message = createMessage(email);
         try {
             emailSender.send(message);
@@ -104,18 +134,11 @@ public class EmailServiceImpl implements EmailService {
                     .email(email)
                     .emailAuthStatus(EmailAuthStatus.UNVERIFIED)
                     .created(LocalDateTime.now())
+                    .verifCode(ePw)
                     .build();
             emailAuthRepository.save(newAuth);
 
-            //전에 쌓인 인증되지 않은 EmailAuth 값들을 전부 "INVALID"로 변경
-            //todo 이부분은 JPA로 find 후 save 하는것보다 myBatis 에서 update 1번 날려주는게 더 효율적일거같음.
-            //todo MemberMapper에다가 작성하면 될듯함.
-            List<EmailAuth> emailAuthList = emailAuthRepository.findListByEmailAndEmailAuthStatus(email, EmailAuthStatus.UNVERIFIED);
 
-            for (EmailAuth emailAuth : emailAuthList) {
-                emailAuth.setEmailAuthStatus(EmailAuthStatus.INVALID);
-            }
-            emailAuthRepository.saveAll(emailAuthList);
         } catch (MailException e) {
             e.printStackTrace();
             throw new CustomException(CustomExceptionCode.SERVER_ERROR);

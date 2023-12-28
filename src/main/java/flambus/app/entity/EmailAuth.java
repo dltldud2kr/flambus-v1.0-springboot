@@ -17,9 +17,9 @@ public class EmailAuth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long memberIdx;
     private LocalDateTime created;
     private String email;
+    private String verifCode;
 
     @Enumerated(EnumType.STRING)
     private EmailAuthStatus emailAuthStatus;

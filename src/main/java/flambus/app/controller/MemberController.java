@@ -3,6 +3,7 @@ package flambus.app.controller;
 
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
+import flambus.app.dto.email.EmailCheckDto;
 import flambus.app.dto.member.JoinRequestDto;
 import flambus.app.dto.member.LoginRequestDto;
 import flambus.app.dto.member.MemberDto;
@@ -215,8 +216,8 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "이메일 인증 요청", description = "" +
-            "이메일 인증 요청" +
+    @Operation(summary = "이메일 인증 전송", description = "" +
+            "이메일 인증 전송" +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
@@ -230,7 +231,7 @@ public class MemberController {
     public ResultDTO<Object> emailSend(@RequestParam String email) throws Exception {
         try {
             emailService.sendEmailVerification(email);
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "인증번호가 메일로 발송되었습니다.", null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "메일 발송 중 문제가 발생했습니다.", null);
         }
@@ -250,9 +251,9 @@ public class MemberController {
 
     // 인증한 이메일의 이메일인증여부를 변경
     @GetMapping("/email/auth")
-    public ResultDTO<Object> emailCheck(@RequestParam(value = "email", required = true) String email) {
+    public ResultDTO<Object> emailCheck(@RequestBody EmailCheckDto dto) {
         try {
-            memberService.emailCheck(email);
+            memberService.emailCheck(dto.getEmail(),dto.getVerifcode());
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);

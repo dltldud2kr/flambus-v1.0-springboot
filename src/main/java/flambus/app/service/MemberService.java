@@ -35,5 +35,5 @@ public interface MemberService {
     @Transactional
     long removeAcorns(Member member, int count);
 
-    ResponseEntity emailCheck(String email);
+    ResponseEntity emailCheck(String email, String verifCode);
 }
