@@ -48,14 +48,11 @@ public interface MemberService {
 
 
 
-//    ResponseEntity pwEmailCheck(String email, String verifCode);
-
-
     /**
      * 비밀번호 변경
      */
 
-//    Boolean changePw(String email, String password);
+    boolean changePw(String email, String password);
 
 
 }

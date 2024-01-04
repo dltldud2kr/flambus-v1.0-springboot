@@ -217,8 +217,8 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "이메일 인증 전송", description = "" +
-            "이메일 인증 전송" +
+    @Operation(summary = "이메일 인증번호 전송 ", description = "" +
+            "이메일 인증번호 전송" +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
@@ -245,8 +245,8 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "이메일 인증 여부", description = "" +
-            "이메일 인증 여부." +
+    @Operation(summary = "회원 가입 시 이메일 인증 처리", description = "" +
+            "회원 가입 시 이메일 인증 처리." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 200: 서버요청 정상 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
@@ -270,6 +270,17 @@ public class MemberController {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
+
+    @Operation(summary = "비밀번호 찾기 시 이메일 인증 처리", description = "" +
+            "비밀번호 찾기 시 이메일 인증 처리." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 " +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
     @PostMapping("/pwFind/email/auth")
     public ResultDTO<Object> findPwEmailCheck(@RequestBody EmailCheckDto dto){
 
@@ -284,11 +295,39 @@ public class MemberController {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
+    @Operation(summary = "비밀번호 변경 ", description = "" +
+            " 비밀번호 변경." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 " +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
+    @PostMapping("/pwChange")
+    public ResultDTO<Object> pwChange(@RequestBody PwChangeDto dto){
 
+        try {
+             memberService.changePw(dto.getEmail(),dto.getPassword());
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
 
+    @Operation(summary = "비밀번호 찾기 시 이메일 인증번호 전송", description = "" +
+            "비밀번호 찾기 시 이메일 인증번호 전송." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 " +
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "서버 요청 성공"),
+    })
     @PostMapping("/pwFind/emailSend")
-    public ResultDTO<Object> pwFind(@RequestBody PasswordFoundDto dto) throws Exception{
-
+    public ResultDTO<Object> pwFindEmailSend(@RequestBody PasswordFoundDto dto) throws Exception{
 
         try {
             boolean result = memberService.isMember(dto.getEmail());
@@ -300,7 +339,6 @@ public class MemberController {
             emailService.sendEmailVerification(dto.getEmail());
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "인증번호가 메일로 발송되었습니다.", null);
         } catch (CustomException e) {
-            log.info("3");
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "메일 발송 중 문제가 발생했습니다.", null);
         }
     }

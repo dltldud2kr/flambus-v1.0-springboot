@@ -244,8 +244,28 @@ public class MemberServiceImpl implements MemberService {
         return true;
     }
 
+
+
     @Transactional
     public void updateEmailAuthStatus(EmailAuth emailAuth) {
         emailAuthRepository.save(emailAuth);
     }
+
+    @Transactional
+    @Override
+    public boolean changePw(String email, String password) {
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()-> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+
+        member.setPassword(password);
+        System.out.println("변경 비번 " + member.getPassword());
+
+        memberRepository.save(member);
+
+
+        return true;
+    }
+
+
 }
