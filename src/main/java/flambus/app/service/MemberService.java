@@ -35,5 +35,28 @@ public interface MemberService {
     @Transactional
     long removeAcorns(Member member, int count);
 
+    /**
+     * 이메일 인증확인 (발송된 인증번호와 동일한지 확인)
+     * @param email
+     * @param verifCode
+     * @return
+     */
     ResponseEntity emailCheck(String email, String verifCode);
+
+    /**
+     * 비밀번호 찾기
+     */
+//    ResponseEntity pwFind(String email);
+
+
+//    ResponseEntity pwEmailCheck(String email, String verifCode);
+
+
+    /**
+     * 비밀번호 변경
+     */
+
+//    Boolean changePw(String email, String password);
+
+
 }

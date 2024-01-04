@@ -111,6 +111,18 @@ public class EmailServiceImpl implements EmailService {
         //전에 쌓인 인증되지 않은 EmailAuth 값들을 전부 "INVALID"로 변경
         //todo 이부분은 JPA로 find 후 save 하는것보다 myBatis 에서 update 1번 날려주는게 더 효율적일거같음.
         //todo MemberMapper에다가 작성하면 될듯함.
+        invalidateUnverifiedEmailAuths(email);
+
+
+        // 이메일 보내는 로직
+        emailSender(email);
+    }
+
+    /**
+     * 전에 쌓인 인증되지 않은 EmailAuth 값들을 전부 "INVALID"로 변경
+     * @param email
+     */
+    public void invalidateUnverifiedEmailAuths(String email){
         List<EmailAuth> emailAuthList = emailAuthRepository.findListByEmailAndEmailAuthStatus(email, EmailAuthStatus.UNVERIFIED);
 
         if (!emailAuthList.isEmpty()){
@@ -123,9 +135,16 @@ public class EmailServiceImpl implements EmailService {
             emailAuthRepository.saveAll(emailAuthList);
         }
 
+    }
+
+    /**
+     * 인증 이메일 발송
+     * @param email
+     * @throws Exception
+     */
+    public void emailSender(String email) throws Exception {
 
         // 이메일 보내는 로직
-        log.info("이메일 메세지 생성 전 ");
         MimeMessage message = createMessage(email);
         try {
             emailSender.send(message);

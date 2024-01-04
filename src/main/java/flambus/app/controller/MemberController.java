@@ -4,14 +4,12 @@ package flambus.app.controller;
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
 import flambus.app.dto.email.EmailCheckDto;
-import flambus.app.dto.member.JoinRequestDto;
-import flambus.app.dto.member.LoginRequestDto;
-import flambus.app.dto.member.MemberDto;
-import flambus.app.dto.member.TokenDto;
+import flambus.app.dto.member.*;
 import flambus.app.service.EmailService;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.service.MemberService;
+import flambus.app.service.impl.EmailServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -33,6 +31,8 @@ import java.util.List;
 public class MemberController {
     private final MemberService memberService;
     private final EmailService emailService;
+
+
 
     @Operation(summary = "로그인 요청", description = "" +
             "회원 로그인을 요청하고 토큰을 발급합니다." +
@@ -259,6 +259,38 @@ public class MemberController {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
+
+//    @PostMapping("/pwFind")
+//    public ResultDTO<Object> pwFind(@RequestBody PasswordFoundDto dto) {
+//
+//        memberService.pwFind(dto.getEmail());
+//
+//        return null;
+//    }
+
+//    @PostMapping("/pwFind/emailCheck")
+//    public ResultDTO<Object> pwEmailCheck(@RequestBody EmailCheckDto dto) {
+//
+//
+//        try {
+//            memberService.emailCheck(dto.getEmail(), dto.getVerifcode());
+//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증 완료 ", null);
+//        } catch (CustomException e) {
+//            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+//        }
+//    }
+
+//    @PostMapping("/pwChange")
+//    public ResultDTO<Object> pwChange(@RequestBody PwChangeDto dto) {
+//
+//        try {
+//            memberService.changePw(dto.getEmail(),dto.getPassword());
+//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "비밀번호 변경 완료 ", null);
+//        } catch (CustomException e) {
+//            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+//        }
+//
+//    }
 
 
     @Operation(summary = "개인정보 수집 마케팅 광고 활용여부 동의", description = "" +
