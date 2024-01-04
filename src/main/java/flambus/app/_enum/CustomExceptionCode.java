@@ -13,6 +13,7 @@ public enum CustomExceptionCode {
     INVALID_JWT("INVALID_JWT", "올바른 형식의 토큰이 아닙니다.", HttpStatus.BAD_REQUEST),
     NOT_FOUND_EMAIL("NOT_FOUND_EMAIL", "이메일을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
     NOT_FOUND("NOT_FOUND", "해당 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_USER("NOT_FOUND_USER", "존재하지 않는 회원입니다.", HttpStatus.BAD_REQUEST),
     DUPLICATED("DUPLICATED", "중복된 정보가 존재합니다.", HttpStatus.BAD_REQUEST),
     SERVER_ERROR("SERVER_ERROR", "요청중 서버 문제가 발생했습니다.", HttpStatus.BAD_REQUEST),
     ACCESS_DENIED("ACCESS_DENIED", "요청이 거부 되었습니다.", HttpStatus.BAD_REQUEST),

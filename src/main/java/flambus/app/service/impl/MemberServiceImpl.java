@@ -127,6 +127,14 @@ public class MemberServiceImpl implements MemberService {
         return member.orElse(null);
     }
 
+    public boolean isMember(String email) {
+        Optional<Member> byEmail = memberRepository.findByEmail(email);
+        if (byEmail.isPresent()){
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public Member isAlreadyEmail(String email) {
         return getMember(email);
@@ -204,75 +212,36 @@ public class MemberServiceImpl implements MemberService {
 
     @Transactional(noRollbackFor = CustomException.class)
     @Override
-    public ResponseEntity emailCheck(String email, String verifCode){
-        log.info("user email info = " + email);
-        log.info("user verifcode = " + verifCode);
+    public boolean emailCheck(String email, String verifCode){
 
-        Optional<Member> optionalMember = memberRepository.findByEmail(email);
-
-        //이미 존재하는 회원
-        if (optionalMember.isPresent()) {
-            throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
-        }
-
-        // VERIFIED 가 있을 시 예외처리
-        Optional<EmailAuth> verified = emailAuthRepository.findByEmailAndEmailAuthStatus(email,EmailAuthStatus.VERIFIED);
-
-        if (verified.isPresent()){
-            throw new CustomException(CustomExceptionCode.VERIFIED_MEMBER);
-        }
 
         // UNVERIFIED  있을 시 만료됐는지 확인 후 인증처리
         Optional<EmailAuth> optionalEmailAuth = emailAuthRepository.findByEmailAndEmailAuthStatus(email,EmailAuthStatus.UNVERIFIED);
         if (optionalEmailAuth.isPresent()){
             EmailAuth emailAuth = optionalEmailAuth.get();
-            System.out.println(emailAuth.getVerifCode());
             LocalDateTime creationTime = emailAuth.getCreated();
             LocalDateTime expirationTime = creationTime.plusMinutes(3); // 3분 유효시간
             LocalDateTime now = LocalDateTime.now();
 
-            log.info("3");
             if (now.isAfter(expirationTime)) {
                 emailAuth.setEmailAuthStatus(EmailAuthStatus.EXPIRED); // 만료
-                log.info("4");
-                String test = String.valueOf(emailAuth.getEmailAuthStatus());
-                log.info("set 후 " + test);
                 updateEmailAuthStatus(emailAuth);
-                String test2 = String.valueOf(emailAuth.getEmailAuthStatus());
-                log.info("save 후" + test2);
-                log.info("5");
                 throw new CustomException(CustomExceptionCode.EXPIRED_AUTH);
             } else {
-                log.info("6");
+
                 emailAuth.setEmailAuthStatus(EmailAuthStatus.VERIFIED);
                 updateEmailAuthStatus(emailAuth);
-                log.info("7");
+
             }
 
         }
         // UNVERIFIED 없을 시
         else {
-            List<EmailAuth> emailAuthList = emailAuthRepository.findAllByEmail(email);
 
-
-            if (emailAuthList.isEmpty()) {
                 throw new CustomException(CustomExceptionCode.INVALID_AUTH);
-            }
-
-            log.info("1");
-
-            for (EmailAuth auth : emailAuthList) {
-                log.info("2");
-
-                if (auth.getEmailAuthStatus() == EmailAuthStatus.EXPIRED) {
-                    throw new CustomException(CustomExceptionCode.EXPIRED_AUTH);
-                }
-
-            }
-            emailAuthRepository.saveAll(emailAuthList);
         }
 
-        return ResponseEntity.ok().body("인증완료");
+        return true;
     }
 
     @Transactional

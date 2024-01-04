@@ -98,9 +98,9 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendEmailVerification(String email) throws Exception {
 
-        if (memberService.getMember(email) != null) {
-            throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
-        }
+//        if (memberService.getMember(email) != null) {
+//            throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
+//        }
 
 
         //todo 사용하는 이메일 라이브러리에서 세팅하는게 모르겠지만 무제한으로 계속 인증메일 전송하는 보안처리를 해야할것 같음.
@@ -126,10 +126,7 @@ public class EmailServiceImpl implements EmailService {
         List<EmailAuth> emailAuthList = emailAuthRepository.findListByEmailAndEmailAuthStatus(email, EmailAuthStatus.UNVERIFIED);
 
         if (!emailAuthList.isEmpty()){
-            log.info("email있음");
-
             for (EmailAuth emailAuth : emailAuthList) {
-                log.info("이메일 invalid로 교체 ");
                 emailAuth.setEmailAuthStatus(EmailAuthStatus.INVALID);
             }
             emailAuthRepository.saveAll(emailAuthList);

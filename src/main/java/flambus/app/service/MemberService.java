@@ -23,6 +23,8 @@ public interface MemberService {
 
     Member getMember(long memberIdx);
 
+    boolean isMember(String email);
+
     Member isAlreadyEmail(String email);
 
     List<MemberDto> getAllMembers();
@@ -41,12 +43,9 @@ public interface MemberService {
      * @param verifCode
      * @return
      */
-    ResponseEntity emailCheck(String email, String verifCode);
+    boolean emailCheck(String email, String verifCode);
 
-    /**
-     * 비밀번호 찾기
-     */
-//    ResponseEntity pwFind(String email);
+
 
 
 //    ResponseEntity pwEmailCheck(String email, String verifCode);

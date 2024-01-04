@@ -13,5 +13,6 @@ import lombok.Data;
 public class PasswordFoundDto {
 
     private String email;
+    private String userName;
 
 }

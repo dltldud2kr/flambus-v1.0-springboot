@@ -2,6 +2,7 @@ package flambus.app.controller;
 
 
 import flambus.app._enum.ApiResponseCode;
+import flambus.app._enum.CustomExceptionCode;
 import flambus.app.dto.ResultDTO;
 import flambus.app.dto.email.EmailCheckDto;
 import flambus.app.dto.member.*;
@@ -228,10 +229,16 @@ public class MemberController {
     })
 
     @PostMapping("/emailSend")
-    public ResultDTO<Object> emailSend(@RequestParam String email) throws Exception {
+    public ResultDTO<Object> emailSend(@RequestBody EmailDto dto) throws Exception {
         try {
-            emailService.sendEmailVerification(email);
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "인증번호가 메일로 발송되었습니다.", null);
+            boolean result = memberService.isMember(dto.getEmail());
+
+            //회원이 있을 시 예외처리
+            if (result){
+                throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
+            }
+            emailService.sendEmailVerification(dto.getEmail());
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "인증번호가 정상적으로 발송되었습니다.", null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "메일 발송 중 문제가 발생했습니다.", null);
         }
@@ -250,9 +257,27 @@ public class MemberController {
     })
 
     // 인증한 이메일의 이메일인증여부를 변경
-    @GetMapping("/email/auth")
+    @PostMapping("/email/auth")
     public ResultDTO<Object> emailCheck(@RequestBody EmailCheckDto dto) {
         try {
+            boolean result = memberService.isMember(dto.getEmail());
+            if (result == true){
+                throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
+            }
+            memberService.emailCheck(dto.getEmail(),dto.getVerifcode());
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
+    @PostMapping("/pwFind/email/auth")
+    public ResultDTO<Object> findPwEmailCheck(@RequestBody EmailCheckDto dto){
+
+        try {
+            boolean result = memberService.isMember(dto.getEmail());
+            if (result == false){
+                throw new CustomException(CustomExceptionCode.NOT_FOUND_USER);
+            }
             memberService.emailCheck(dto.getEmail(),dto.getVerifcode());
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
         } catch (CustomException e) {
@@ -260,38 +285,25 @@ public class MemberController {
         }
     }
 
-//    @PostMapping("/pwFind")
-//    public ResultDTO<Object> pwFind(@RequestBody PasswordFoundDto dto) {
-//
-//        memberService.pwFind(dto.getEmail());
-//
-//        return null;
-//    }
 
-//    @PostMapping("/pwFind/emailCheck")
-//    public ResultDTO<Object> pwEmailCheck(@RequestBody EmailCheckDto dto) {
-//
-//
-//        try {
-//            memberService.emailCheck(dto.getEmail(), dto.getVerifcode());
-//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증 완료 ", null);
-//        } catch (CustomException e) {
-//            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
-//        }
-//    }
+    @PostMapping("/pwFind/emailSend")
+    public ResultDTO<Object> pwFind(@RequestBody PasswordFoundDto dto) throws Exception{
 
-//    @PostMapping("/pwChange")
-//    public ResultDTO<Object> pwChange(@RequestBody PwChangeDto dto) {
-//
-//        try {
-//            memberService.changePw(dto.getEmail(),dto.getPassword());
-//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "비밀번호 변경 완료 ", null);
-//        } catch (CustomException e) {
-//            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
-//        }
-//
-//    }
 
+        try {
+            boolean result = memberService.isMember(dto.getEmail());
+
+            // 회원이 없을 시 예외처리
+            if (!result){
+                throw new CustomException(CustomExceptionCode.NOT_FOUND_USER);
+            }
+            emailService.sendEmailVerification(dto.getEmail());
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "인증번호가 메일로 발송되었습니다.", null);
+        } catch (CustomException e) {
+            log.info("3");
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), "메일 발송 중 문제가 발생했습니다.", null);
+        }
+    }
 
     @Operation(summary = "개인정보 수집 마케팅 광고 활용여부 동의", description = "" +
             "개인정보 수집 마케팅 광고 활용여부 동의" +
