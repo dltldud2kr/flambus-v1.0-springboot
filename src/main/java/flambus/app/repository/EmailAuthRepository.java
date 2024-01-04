@@ -20,7 +20,9 @@ public interface EmailAuthRepository extends JpaRepository<EmailAuth, Long> {
 
     List<EmailAuth> findListByEmailAndEmailAuthStatus(String email, EmailAuthStatus emailAuthStatus);
 
-    List<EmailAuth> findByEmail(String email);
+    List<EmailAuth> findAllByEmail(String email);
+
+    EmailAuth findByEmail(String email);
 
 
 
