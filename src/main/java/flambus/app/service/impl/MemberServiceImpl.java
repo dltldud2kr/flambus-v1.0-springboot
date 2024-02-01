@@ -1,5 +1,8 @@
 package flambus.app.service.impl;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import flambus.app._enum.CustomExceptionCode;
 import flambus.app._enum.EmailAuthStatus;
 import flambus.app.auth.JwtTokenProvider;
@@ -16,15 +19,20 @@ import flambus.app.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -88,18 +96,16 @@ public class MemberServiceImpl implements MemberService {
                     .password(request.getPassword())
                     .isAdmin(false)
                     .platform(0)
-                    .introduce(null)
                     .refreshToken(null)
                     .serviceAgree(false)
                     .serviceAgreeDate(LocalDateTime.now())
                     .termsAgree(false)
                     .profileImageUrl("test")                // 추가 (널값허용안받음)
-                    .userName(request.getNickName())        // 추가 (널값허용안받음)
+                    .nickname(request.getNickName())        // 추가 (널값허용안받음)
                     .withdrawal(false)                      // 추가 (널값허용안받음)
                     .withdrawalDate(LocalDateTime.now())    //널값허용왜안됨?
                     .subscriptionDate(LocalDateTime.now())  // 추가
                     .termsAgreeDate(LocalDateTime.now())
-                    .emailAuth(false)                       // 추가
                     .useGpsAgree(false)
                     .useGpsAgreeDate(LocalDateTime.now())
                     .follower(0)
@@ -112,6 +118,88 @@ public class MemberServiceImpl implements MemberService {
             return false;
         }
     }
+
+    // 카카오 회원가입
+    @Transactional
+    @Override
+    public TokenDto join(String email, String kakaoIdx, String nickname) {
+        try {
+            //해당 이메일이 존재하는지 확인.
+            Optional<Member> optionalMember =  memberRepository.findByEmail(email);
+            if(optionalMember.isPresent()) {
+                throw new CustomException(CustomExceptionCode.DUPLICATED);
+            }
+            //해당 이메일이 디비에 존재하는지 확인.
+            Member member = Member.builder()
+                    .email(email)
+                    .password(kakaoIdx)
+                    .isAdmin(false)
+                    .platform(1)
+                    .refreshToken(null)
+                    .serviceAgree(false)
+                    .serviceAgreeDate(LocalDateTime.now())
+                    .termsAgree(false)
+                    .profileImageUrl("test")                // 추가 (널값허용안받음)
+                    .nickname(nickname)        // 추가 (널값허용안받음)
+                    .withdrawal(false)                      // 추가 (널값허용안받음)
+                    .withdrawalDate(LocalDateTime.now())    //널값허용왜안됨?
+                    .subscriptionDate(LocalDateTime.now())  // 추가
+                    .termsAgreeDate(LocalDateTime.now())
+                    .useGpsAgree(false)
+                    .useGpsAgreeDate(LocalDateTime.now())
+                    .follower(0)
+                    .following(0)
+                    .build();
+            memberRepository.save(member);
+
+            //사용자 인증 정보를 담은 토큰을 생성함. (이메일, 카카오고유번호(비밀번호 역할) )
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, kakaoIdx);
+
+            //authenticationManagerBuilder를 사용하여 authenticationToken을 이용한 사용자의 인증을 시도합니다.
+            // 여기서 실제로 로그인 발생  ( 성공: Authentication 반환 //   실패 : Exception 발생
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            // 인증이 된 경우 JWT 토큰을 발급  (요청에 대한 인증처리)
+            TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
+            log.info(tokenDto.getAccessToken());
+            if (tokenDto.getAccessToken().isEmpty()){
+                log.info(tokenDto.getAccessToken());
+                log.info("token empty");
+            }
+            return tokenDto;
+
+
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
+    // 카카오 로그인
+    @Transactional
+    public TokenDto kakaoLogin(String email, String kakaoIdx) {
+        Optional<Member> optionalMember =  memberRepository.findByEmail(email);
+
+        memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_EMAIL));
+
+        //사용자 인증 정보를 담은 토큰을 생성함. (이메일, 멤버 인덱스 정보 포함 )
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, kakaoIdx);
+
+        //authenticationManagerBuilder를 사용하여 authenticationToken을 이용한 사용자의 인증을 시도합니다.
+        // 여기서 실제로 로그인 발생  ( 성공: Authentication 반환 //   실패 : Exception 발생
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        // 인증이 된 경우 JWT 토큰을 발급  (요청에 대한 인증처리)
+        TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
+
+        if (tokenDto.getAccessToken().isEmpty()){
+            log.info(tokenDto.getAccessToken());
+        }
+
+        return tokenDto;
+    }
+
 
     //이메일 -> 사용자 정보를 찾아고  pk
     public Member getMember(String email) {
@@ -274,6 +362,128 @@ public class MemberServiceImpl implements MemberService {
 
         return true;
     }
+
+    @Override
+    public String getReturnAccessToken(String code, HttpServletRequest request) {
+        String access_token = "";
+        String refresh_token = "";
+        String reqURL = "https://kauth.kakao.com/oauth/token";
+
+        try {
+            URL url = new URL(reqURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            //HttpURLConnection 설정 값 셋팅
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+
+            // buffer 스트림 객체 값 셋팅 후 요청
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+            StringBuilder sb = new StringBuilder();
+            sb.append("grant_type=authorization_code");
+//           sb.append("&client_id=b22a0873d0ccefbc5f331106fa7b9287");  // REST API 키
+
+            String origin = request.getHeader("Origin"); //요청이 들어온 Origin을 가져옵니다.
+            sb.append("&client_id=ccf25614050bf5afb0bf4c82541cebb8");  // REST API 키
+
+            sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback");
+
+            // 테스트 서버, 퍼블리싱 서버 구분
+            /*
+            if("http://localhost:8080".equals(origin)){
+
+                sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback"); // 앱 CALLBACK 경로
+            } else {
+                sb.append("&redirect_uri=https://app.lunaweb.dev/auth/kakao/callback"); // 다른 경로
+            }
+
+             */
+            sb.append("&code=" + code);
+            bw.write(sb.toString());
+            bw.flush();
+
+            //  RETURN 값 result 변수에 저장
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String br_line = "";
+            String result = "";
+
+            while ((br_line = br.readLine()) != null) {
+                result += br_line;
+            }
+
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(result);
+
+
+            // 토큰 값 저장 및 리턴
+            access_token = element.getAsJsonObject().get("access_token").getAsString();
+            refresh_token = element.getAsJsonObject().get("refresh_token").getAsString();
+
+            System.out.println("access_token: " + access_token);
+            System.out.println("refresh_token: " + refresh_token);
+
+            br.close();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return access_token;
+    }
+
+    @Override
+    public Map<String, Object> getUserInfo(String access_token) {
+        Map<String,Object> resultMap =new HashMap<>();
+        String reqURL = "https://kapi.kakao.com/v2/user/me";
+        try {
+            URL url = new URL(reqURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            //요청에 필요한 Header에 포함될 내용
+            conn.setRequestProperty("Authorization", "Bearer " + access_token);
+
+            int responseCode = conn.getResponseCode();
+            log.info("responseCode : " + responseCode);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String br_line = "";
+            String result = "";
+
+            while ((br_line = br.readLine()) != null) {
+                result += br_line;
+            }
+            log.info("response:" + result);
+
+
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(result);
+            log.warn("element:: " + element);
+            JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
+            JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+            log.warn("id:: "+element.getAsJsonObject().get("id").getAsString());
+            String id = element.getAsJsonObject().get("id").getAsString();
+            String nickname = properties.getAsJsonObject().get("nickname").getAsString();
+            String email = kakao_account.getAsJsonObject().get("email").getAsString();
+            // 프로필 이미지 정보 반환
+            String profileImage = properties.getAsJsonObject().get("profile_image").getAsString();
+
+            log.warn("email:: " + email);
+            resultMap.put("nickname", nickname);
+            resultMap.put("id", id);
+            resultMap.put("email", email);
+            // Map에 프로필 이미지 정보를 추가합니다.
+            resultMap.put("profile_image", profileImage);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return resultMap;
+    }
+
+
 
 
 }

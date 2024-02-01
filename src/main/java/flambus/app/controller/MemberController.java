@@ -6,6 +6,7 @@ import flambus.app._enum.CustomExceptionCode;
 import flambus.app.dto.ResultDTO;
 import flambus.app.dto.email.EmailCheckDto;
 import flambus.app.dto.member.*;
+import flambus.app.repository.MemberRepository;
 import flambus.app.service.EmailService;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
@@ -20,7 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 @Slf4j
@@ -32,6 +36,7 @@ import java.util.List;
 public class MemberController {
     private final MemberService memberService;
     private final EmailService emailService;
+    private final MemberRepository memberRepository;
 
 
 
@@ -58,6 +63,56 @@ public class MemberController {
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
+
+    /**
+     * 카카오 로그인
+     * id = email
+     * pw = 카카오 고유번호
+     * @param code
+     * @param request
+     * @return
+     */
+    @GetMapping("/auth/kakao/callback")
+    public @ResponseBody KakaoJoinRequestDto<Object> kakaoCallback(String code, HttpServletRequest request) {
+        System.out.println("code: " + code);
+
+        // 접속토큰 get
+        String kakaoToken = memberService.getReturnAccessToken(code, request);
+
+        // 접속자 정보 get
+        // id, connected_at , prop
+        Map<String, Object> result = memberService.getUserInfo(kakaoToken);
+        log.info("result: " + result);
+        String kakaoIdx = (String) result.get("id");
+        String nickname = (String) result.get("nickname");
+        String email = (String) result.get("email");
+        String profileImage = (String) result.get("profileImage");
+
+
+        // 이메일값으로 멤버가 존재하는지 확인.
+        Optional<Member> member = memberRepository.findByEmail(email);
+        if (member.isPresent()) {
+            try {
+                TokenDto tokenDto = memberService.kakaoLogin(email, kakaoIdx);
+
+                KakaoJoinRequestDto<Object> response = KakaoJoinRequestDto.of(true, "기존회원",
+                        ApiResponseCode.SUCCESS.getCode(), "로그인 성공했음.", tokenDto);
+                response.setUserInfo(result);  // 사용자 정보를 설정합니다.
+                return response;
+            } catch (CustomException e) {
+                KakaoJoinRequestDto<Object> response = KakaoJoinRequestDto.of(false, "에러",
+                        e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+                response.setUserInfo(result);  // 사용자 정보를 설정합니다.
+                return response;
+            }
+        } else {
+            TokenDto tokenDto = memberService.join(email, kakaoIdx, nickname);
+            KakaoJoinRequestDto<Object> response = KakaoJoinRequestDto.of(true, "신규회원",
+                    ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", tokenDto);
+            response.setUserInfo(result);  // 사용자 정보를 설정합니다.
+            return response;
         }
     }
 
@@ -265,7 +320,7 @@ public class MemberController {
                 throw new CustomException(CustomExceptionCode.DUPLICATED_MEMBER);
             }
             memberService.emailCheck(dto.getEmail(),dto.getVerifcode());
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", null);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "이메일 인증이 정상적으로 되었습니다.", dto.getEmail());
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }

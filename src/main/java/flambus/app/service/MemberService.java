@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface MemberService {
@@ -54,5 +56,29 @@ public interface MemberService {
 
     boolean changePw(String email, String password);
 
+    /**
+     * 카카오 회원가입
+     */
+    TokenDto join(String email, String kakaoIdx, String nickname);
+
+    /**
+     * 카카오 로그인
+     */
+    TokenDto kakaoLogin(String email, String password);
+
+
+
+    /**
+     *
+     * 카카오 로그인 토큰 값
+     */
+    String getReturnAccessToken(String code, HttpServletRequest request);
+
+    /**
+     * 카카오로그인 파싱 결과
+     * @param access_token
+     * @return
+     */
+    public Map<String,Object> getUserInfo(String access_token);
 
 }

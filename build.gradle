@@ -27,7 +27,11 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
+
+	//gson
+	implementation 'com.google.code.gson:gson:2.10.1'
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+
 	implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
