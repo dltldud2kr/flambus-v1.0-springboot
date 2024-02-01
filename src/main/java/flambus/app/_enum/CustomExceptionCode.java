@@ -22,7 +22,8 @@ public enum CustomExceptionCode {
     DUPLICATED_MEMBER("DUPLICATED_MEMBER", "이미 존재하는 회원", HttpStatus.BAD_REQUEST),
     VERIFIED_MEMBER("VERIFIED_MEMBER", "이미 인증이 완료된 회원", HttpStatus.BAD_REQUEST),
     INVALID_AUTH("INVALID_AUTH", "유효하지 않은 인증", HttpStatus.BAD_REQUEST),
-    EXPIRED_AUTH("EXPIRED_AUTH", "만료된 인증", HttpStatus.BAD_REQUEST);
+    EXPIRED_AUTH("EXPIRED_AUTH", "만료된 인증", HttpStatus.BAD_REQUEST),
+    INVALID_CODE("INVALID_CODE", "인증번호가 틀렸습니다.", HttpStatus.BAD_REQUEST);
 
 
     // 추후에 추가될 다른 업로드 타입들

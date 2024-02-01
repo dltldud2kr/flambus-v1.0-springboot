@@ -215,13 +215,21 @@ public class MemberServiceImpl implements MemberService {
     public boolean emailCheck(String email, String verifCode){
 
 
+
+
         // UNVERIFIED  있을 시 만료됐는지 확인 후 인증처리
         Optional<EmailAuth> optionalEmailAuth = emailAuthRepository.findByEmailAndEmailAuthStatus(email,EmailAuthStatus.UNVERIFIED);
         if (optionalEmailAuth.isPresent()){
+
             EmailAuth emailAuth = optionalEmailAuth.get();
             LocalDateTime creationTime = emailAuth.getCreated();
             LocalDateTime expirationTime = creationTime.plusMinutes(3); // 3분 유효시간
+            String receiveVerifCode = emailAuth.getVerifCode();
             LocalDateTime now = LocalDateTime.now();
+            // 인증번호 체크
+            if (!verifCode.equals(receiveVerifCode)){
+                throw new CustomException(CustomExceptionCode.INVALID_CODE);
+            }
 
             if (now.isAfter(expirationTime)) {
                 emailAuth.setEmailAuthStatus(EmailAuthStatus.EXPIRED); // 만료
