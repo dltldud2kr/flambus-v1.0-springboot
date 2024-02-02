@@ -84,7 +84,7 @@ public class MemberServiceImpl implements MemberService {
 
     //회원가입 로직
     @Transactional
-    public boolean join(JoinRequestDto request) {
+    public TokenDto join(JoinRequestDto request) {
         try {
             //해당 이메일이 존재하는지 확인.
             if(this.getMember(request.getEmail()) != null) {
@@ -112,10 +112,22 @@ public class MemberServiceImpl implements MemberService {
                     .following(0)
                     .build();
             memberRepository.save(member);
-            return true;
+            //사용자 인증 정보를 담은 토큰을 생성함. (이메일, 비밀번호 )
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+
+            //authenticationManagerBuilder를 사용하여 authenticationToken을 이용한 사용자의 인증을 시도합니다.
+            // 여기서 실제로 로그인 발생  ( 성공: Authentication 반환 //   실패 : Exception 발생
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            // 인증이 된 경우 JWT 토큰을 발급  (요청에 대한 인증처리)
+            TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
+            log.info(tokenDto.getAccessToken());
+            if (tokenDto.getAccessToken().isEmpty()){
+                log.info(tokenDto.getAccessToken());
+                log.info("token empty");
+            }
+            return tokenDto;
         } catch (DataAccessException e) {
-            System.err.println("DataAccessException : " + e);
-            return false;
+            throw new RuntimeException(e.getMessage());
         }
     }
 

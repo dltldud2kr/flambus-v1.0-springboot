@@ -23,7 +23,6 @@ public class StoreJjimController {
 
     private final StoreJjimService storeJjimService;
 
-
     @PostMapping
     public ResultDTO storeJjim (@RequestParam("storeIdx") long storeIdx, Principal principal) {
 

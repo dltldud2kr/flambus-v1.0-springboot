@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,6 +24,12 @@ public class Store {
     private Double latitude; //위도
     private Double longitude; //경도
     private String contactNumber; //연락처
+    private Long memberIdx;
+
+    @Lob
+    @Type(type = "text")
+    private String introduce; // 가게 소개
+
     private LocalDateTime created;
     private LocalDateTime updated;
 

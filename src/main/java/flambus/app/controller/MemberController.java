@@ -175,7 +175,8 @@ public class MemberController {
     @PostMapping("/auth/join")
     public ResultDTO join(@RequestBody JoinRequestDto joinRequestDto) {
         try {
-            return ResultDTO.of(memberService.join(joinRequestDto), ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
+            TokenDto result = memberService.join(joinRequestDto);
+            return ResultDTO.of(true, ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", result);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }

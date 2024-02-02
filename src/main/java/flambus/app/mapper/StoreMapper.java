@@ -1,6 +1,7 @@
 package flambus.app.mapper;
 
 import flambus.app.dto.map.MapResponse;
+import flambus.app.dto.store.CreateStoreDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;
 
@@ -12,5 +13,7 @@ public interface StoreMapper {
     Long findMostUsedTagIdx(@Param("storeIdx") long storeIdx);
 
     List<Map<String,Object>> getMapStoreMakrer();
+
+    int createStore(CreateStoreDto createStoreDto);
 
 }

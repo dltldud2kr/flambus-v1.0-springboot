@@ -2,18 +2,22 @@ package flambus.app.service.impl;
 
 import flambus.app._enum.CustomExceptionCode;
 import flambus.app.dto.review.ReviewResponse;
+import flambus.app.dto.store.CreateStoreDto;
 import flambus.app.dto.store.StoreDto;
 import flambus.app.entity.*;
 import flambus.app.exception.CustomException;
 import flambus.app.mapper.StoreMapper;
+import flambus.app.repository.MemberRepository;
 import flambus.app.repository.StoreRepository;
 import flambus.app.service.MemberService;
 import flambus.app.service.ReviewService;
 import flambus.app.service.StoreService;
 import flambus.app.service.UploadService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +25,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StoreServiceImpl implements StoreService {
 
     @Autowired
@@ -32,8 +37,8 @@ public class StoreServiceImpl implements StoreService {
     @Autowired
     private UploadService uploadService;
     private final StoreMapper storeMapper;
-
-
+    @Autowired
+    private MemberRepository memberRepository;
 
 
     /**
@@ -103,5 +108,27 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
+    @Override
+    @Transactional
+    public boolean createStore(CreateStoreDto dto) {
+
+        try {
+             memberRepository.findById(dto.getMemberIdx())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+
+            int affectedRows = storeMapper.createStore(dto);
+            if (affectedRows != 1) {
+                // 적절한 예외 또는 로그 처리
+                throw new CustomException(CustomExceptionCode.STORE_CREATION_FAILED);
+            }
+
+            return true;
+        } catch (Exception e) {
+            // 로깅 또는 예외 처리
+            log.error("Error creating store: {}", e.getMessage());
+            return false;
+        }
+
+    }
 
 }

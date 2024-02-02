@@ -19,7 +19,7 @@ public interface MemberService {
 
     TokenDto login(String email, String password);
     TokenDto createToken(Long memberIdx);
-    boolean join(JoinRequestDto request);
+    TokenDto join(JoinRequestDto request);
 
     Member getMember(String email);
 

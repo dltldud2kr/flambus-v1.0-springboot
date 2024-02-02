@@ -2,6 +2,7 @@ package flambus.app.controller;
 
 import flambus.app._enum.ApiResponseCode;
 import flambus.app.dto.ResultDTO;
+import flambus.app.dto.store.CreateStoreDto;
 import flambus.app.dto.store.StoreDto;
 import flambus.app.exception.CustomException;
 import flambus.app.service.StoreService;
@@ -22,6 +23,20 @@ import org.springframework.web.bind.annotation.*;
 public class StoreController {
 
     private final StoreService storeService;
+
+
+    @PostMapping("/create")
+    public ResultDTO createStore(@RequestBody CreateStoreDto dto){
+
+
+        try {
+            boolean result = storeService.createStore(dto);
+            return ResultDTO.of(result, ApiResponseCode.SUCCESS.getCode(), "가게 등록 완료",null);
+
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
 
     @Operation(summary = "가게 정보 요청", description = "해당 가게 정보를 단건으로 요청" +
             "\n### HTTP STATUS 에 따른 조회 결과" +
