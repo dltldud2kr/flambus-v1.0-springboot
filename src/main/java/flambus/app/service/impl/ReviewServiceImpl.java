@@ -181,6 +181,8 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
     public long getTotalReviewCount(long storeIdx) {
+
+
         return reviewRepository.countByStoreIdx(storeIdx);
     }
 

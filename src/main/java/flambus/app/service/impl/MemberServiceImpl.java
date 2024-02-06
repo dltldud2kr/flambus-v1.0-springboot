@@ -53,8 +53,8 @@ public class MemberServiceImpl implements MemberService {
      * 3. 검증이 정상적으로 통과되었다면 인증된 Authentication객체를 기반으로 JWT 토큰을 생성
      */
     @Transactional
-    public TokenDto login(String email, String password) {
-        memberRepository.findByEmail(email)
+    public Map<String, Object> login(String email, String password) {
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_EMAIL));
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
@@ -62,7 +62,12 @@ public class MemberServiceImpl implements MemberService {
 
         TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
 
-        return tokenDto;
+        // Map을 사용하여 TokenDto와 추가로 전달할 문자열 값을 함께 담아 반환
+        Map<String, Object> response = new HashMap<>();
+        response.put("tokenDto", tokenDto);
+        response.put("memberIdx", member.getIdx());
+
+        return response;
     }
 
     public TokenDto createToken(Long memberIdx) {

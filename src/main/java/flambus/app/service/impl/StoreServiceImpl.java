@@ -68,7 +68,8 @@ public class StoreServiceImpl implements StoreService {
 
             //작성된 리뷰 개수가 0 이상일 경우에만 대표와 대표 리뷰 찾기.
             if(totalReviewCount > 0) {
-                // 해당 리뷰에 가장 많이 달린 리뷰태그 맵핑
+
+                // 해당 리뷰에 가장 많이 달린 리뷰태그 맵핑      리뷰태그 무결성 문제 조심.
                 ReviewTagType reviewType =  reviewService.getReivewTypeByIdx(storeMapper.findMostUsedTagIdx(storeIdx));
                 representTag.put("tagIdx",reviewType.getIdx());
                 representTag.put("tagName",reviewType.getTagName());

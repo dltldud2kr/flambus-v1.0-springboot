@@ -17,7 +17,7 @@ import java.util.Map;
 @Service
 public interface MemberService {
 
-    TokenDto login(String email, String password);
+    Map<String, Object> login(String email, String password);
     TokenDto createToken(Long memberIdx);
     TokenDto join(JoinRequestDto request);
 

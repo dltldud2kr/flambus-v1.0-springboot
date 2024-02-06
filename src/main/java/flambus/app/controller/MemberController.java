@@ -11,14 +11,12 @@ import flambus.app.service.EmailService;
 import flambus.app.entity.Member;
 import flambus.app.exception.CustomException;
 import flambus.app.service.MemberService;
-import flambus.app.service.impl.EmailServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,14 +51,16 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
     })
     @PostMapping("/auth/login")
-    public ResultDTO<TokenDto> login(@RequestBody LoginRequestDto loginRequest) {
+    public ResultDTO<Map<String, Object>> login(@RequestBody LoginRequestDto loginRequest) {
         try {
             String email = loginRequest.getEmail();
             String password = loginRequest.getPassword();
 
-            TokenDto tokenDto = memberService.login(email, password);
+            Map<String, Object> response = memberService.login(email, password);
 
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
+
+
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "로그인 성공", response);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }

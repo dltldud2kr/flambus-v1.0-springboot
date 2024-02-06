@@ -25,4 +25,6 @@ public class Review {
     private LocalDateTime created; //작성 시간
     private LocalDateTime modified; //수정 시간
 
+
+
 }
