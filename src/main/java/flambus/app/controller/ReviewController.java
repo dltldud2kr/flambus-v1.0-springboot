@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -65,8 +66,12 @@ public class ReviewController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "서버 요청 성공"),
     })
-    @PutMapping
+    @PutMapping("/create")
     public ResultDTO createJournal(ReviewRequest.CreateReviewRequestDto request) {
+
+        System.out.println("test" + request.getMemberIdx());
+        System.out.println("test" +request.getStoreIdx());
+
         try {
             reviewService.createJournal(request);
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "리뷰가 정상적으로 등록됐어요", null);

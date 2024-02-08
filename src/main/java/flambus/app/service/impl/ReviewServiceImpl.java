@@ -5,11 +5,13 @@ import flambus.app._enum.CustomExceptionCode;
 import flambus.app.dto.review.ReviewRequest;
 import flambus.app.dto.review.ReviewResponse;
 import flambus.app.entity.Review;
+import flambus.app.entity.ReviewTag;
 import flambus.app.entity.ReviewTagType;
 import flambus.app.entity.UploadImage;
 import flambus.app.exception.CustomException;
 import flambus.app.mapper.ReviewMapper;
 import flambus.app.repository.ReviewRepository;
+import flambus.app.repository.ReviewTagRepository;
 import flambus.app.repository.ReviewTagTypeRepository;
 import flambus.app.service.MemberService;
 import flambus.app.service.ReviewService;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,15 +41,21 @@ public class ReviewServiceImpl implements ReviewService {
     private MemberService memberService;
     @Autowired
     private ReviewMapper reviewMapper;
+    @Autowired
+    private ReviewTagRepository reviewTagRepository;
 
     /**
      * @title 리뷰 작성
      * @created 23.10.08
+     * @updated 24.02.08  이시영
      * @Author 최성우
      */
     @Override
 //    @Transactional
     public void createJournal(ReviewRequest.CreateReviewRequestDto request) throws IOException {
+
+        System.out.println("memberIdx : "  + request.getMemberIdx());
+        System.out.println("storeIdx : "  + request.getStoreIdx());
         //업로드한 리뷰 이미지가 존재한다면 리뷰 이미지 업로드를 진행합니다.
         try {
             Review review = new Review();
@@ -59,6 +68,24 @@ public class ReviewServiceImpl implements ReviewService {
 
             //리뷰를 먼저 생성하는 이유는 생성된 IDX로 업로드 이미지를 맵핑해주기 위해 1차적으로 먼저 생성
             Review savedReivew = reviewRepository.save(review);
+
+            //리뷰 등록시 입력받은 태그가 String 형태라 파싱 후 리스트로 저장.
+            List<Long> numbers = Arrays.stream(request.getTagIdx().split(","))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+
+            // 리뷰태그들을 ReviewTag 테이블에 저장
+            for (Long tagIdx : numbers) {
+                reviewTagTypeRepository.findById(tagIdx)
+                        .orElseThrow(() -> new RuntimeException("Tag not found with ID: " + tagIdx));
+                ReviewTag reviewTag = new ReviewTag();
+                reviewTag.setStoreIdx(request.getStoreIdx());
+                reviewTag.setReviewIdx(review.getIdx());
+                reviewTag.setTagIdx(tagIdx);
+                reviewTag.setModified(null);
+                reviewTag.setCreated(LocalDateTime.now());
+                reviewTagRepository.save(reviewTag);
+            }
 
             //정상적으로 리뷰가 생성됐는 경우 리뷰에 등록할 이미지를 첨부했는지 확인하고 해당 리뷰 IDX에 이미지 업로드를 실행함
             uploadService.upload(request.getReviewImage(), request.getMemberIdx(), AttachmentType.REVIEW, savedReivew.getIdx());
