@@ -53,6 +53,7 @@ public class MemberController {
     @PostMapping("/auth/login")
     public ResultDTO<Map<String, Object>> login(@RequestBody LoginRequestDto loginRequest) {
         try {
+            // .
             String email = loginRequest.getEmail();
             String password = loginRequest.getPassword();
 
