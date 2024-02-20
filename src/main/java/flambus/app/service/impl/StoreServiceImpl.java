@@ -118,13 +118,13 @@ public class StoreServiceImpl implements StoreService {
 
             int affectedRows = storeMapper.createStore(dto);
             if (affectedRows != 1) {
-                // 적절한 예외 또는 로그 처리
+
                 throw new CustomException(CustomExceptionCode.STORE_CREATION_FAILED);
             }
 
             return true;
         } catch (Exception e) {
-            // 로깅 또는 예외 처리
+
             log.error("Error creating store: {}", e.getMessage());
             return false;
         }

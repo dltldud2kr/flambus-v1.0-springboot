@@ -23,7 +23,7 @@
     </select>
 
     <insert id="createStore" parameterType="flambus.app.dto.store.CreateStoreDto">
-        INSERT INTO store (memberIdx, name, address, contactNumber, introduce, created, updated)
+        INSERT INTO store (member_idx, name, address, contact_number, introduce, created, updated)
         VALUES (#{memberIdx}, #{storeName}, #{address}, #{contactNumber}, #{introduce}, #{created, jdbcType=TIMESTAMP}, #{updated, jdbcType=TIMESTAMP})
     </insert>
 
