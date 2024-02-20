@@ -23,6 +23,8 @@ public class MapResponse {
         private Location location;
         private long journalCount; //리뷰개수
 
+        private boolean hasReview;
+
     }
     @Builder
     @Data

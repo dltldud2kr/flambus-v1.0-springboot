@@ -14,9 +14,9 @@
         LIMIT 1
     </select>
 
-    <!-- 해당 가게에서 제일 많은 태그 정보 찾아오기. -->
-    <select id="getMapStoreMakrer" resultType="java.util.Map">
-        SELECT store.*, COUNT(review.store_idx) AS review_count
+    <select id="getMapStoreMarker" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT store.*, COUNT(review.store_idx) AS review_count,
+        IF(MAX(IF(review.member_idx = #{memberIdx}, 1, 0)) = 1, true, false) AS has_review
         FROM store
         LEFT JOIN review ON store.idx = review.store_idx
         GROUP BY store.idx

@@ -12,7 +12,7 @@ import java.util.Map;
 public interface StoreMapper {
     Long findMostUsedTagIdx(@Param("storeIdx") long storeIdx);
 
-    List<Map<String,Object>> getMapStoreMakrer();
+    List<Map<String,Object>> getMapStoreMarker(long memberIdx);
 
     int createStore(CreateStoreDto createStoreDto);
 

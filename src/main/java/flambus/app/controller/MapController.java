@@ -51,9 +51,10 @@ public class MapController {
             @ApiResponse(responseCode = "200", description = "요청 성공"),
     })
     @GetMapping("/store")
-    public ResultDTO<List<MapResponse.MapStoreMarker>> getStoreByMaps() {
+    public ResultDTO<List<MapResponse.MapStoreMarker>> getStoreByMaps(@RequestParam long memberIdx) {
         try {
-            List<MapResponse.MapStoreMarker> markerDto = mapService.getStoreInfoByMap();
+            System.out.println("hello");
+            List<MapResponse.MapStoreMarker> markerDto = mapService.getStoreInfoByMap(memberIdx);
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "Success", markerDto);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
